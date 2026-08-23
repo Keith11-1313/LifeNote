@@ -44,7 +44,7 @@ LifeNote/
 | `HttpServer.kt` | ~200 | TCP accept, HTTP parse, route dispatch |
 | `JournalStore.kt` | ~180 | File CRUD, front matter parse/serialize |
 | `SyncEngine.kt` | ~160 | Protocol execution, LWW decisions |
-| `Settings.kt` | ~60 | Three-to-four key-value reads/writes |
+| `Settings.kt` | ~90 | Lock PIN, device name, peer registry CRUD (name/address/port per peer) |
 
 Total first-party code: **~1900 lines.** Third-party runtime dependencies: **0.**
 

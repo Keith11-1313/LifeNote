@@ -67,7 +67,7 @@ Hand-written HTTP/1.1 listener on Java `ServerSocket`, ~200 lines, zero dependen
 
 ### SyncEngine — `SyncEngine.kt`
 
-The only component that initiates outbound connections. Executes the protocol defined in [doc 05](05-sync-protocol.md). Runs synchronously during app-open and on manual trigger; reports result counts to the UI (`synced ✓ 3 pulled, 1 pushed` / `peer unreachable`).
+The only component that initiates outbound connections. Executes the protocol defined in [doc 05](05-sync-protocol.md) against every entry in the Settings peer registry, in turn. Runs synchronously during app-open and on manual trigger; reports per-peer results to the UI (`B ✓ 3 pulled · C ✗ unreachable`).
 
 ## Request flow example
 
@@ -98,7 +98,7 @@ Threat model: a nosy household member or random device on the home network. Not 
 
 - Server reachable only on LAN; port forwarding to internet is prohibited by project charter
 - Token header required on every route including `/api/ping`
-- PIN/token generated at first launch, exchanged once manually between phones
+- Each device generates its own token at first launch and reveals it only during pairing; every paired device stores a peer registry (address + port) locally
 - Content confidentiality at rest delegated to full-disk device encryption
 
 ## Longevity mechanism

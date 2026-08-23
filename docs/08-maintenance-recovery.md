@@ -24,10 +24,11 @@ Settings → **Export** → zip lands in Downloads → copy anywhere (Google Dri
 ## Failure playbook
 
 ### 🔴 Phone lost / broken / stolen
-1. Data: near-zero loss (other phone has everything since last sync; export from it)
-2. Replace phone → install same APK (doc 07) → pair again in Settings → sync
+1. Data: near-zero loss (every other paired phone holds a near-complete copy; export from any of them)
+2. Replace phone → install same APK (doc 07) → pair against any surviving phone → sync
+3. Optional cleanup: remove the dead device from surviving phones' peer registries
 
-### 🔴 BOTH phones lost at once
+### 🔴 ALL phones lost at once
 1. Restore latest exported zip onto whichever phone comes next (Import button)
 2. Loss window = time since last export. This is why the habit exists.
 
@@ -65,10 +66,10 @@ Prevention: keystore lives in 3 places minimum (PC, cloud drive, USB stick) **st
 
 ## Migration to a brand-new phone (planned, not failure)
 
-1. Export zip from old phone → copy to new phone
+1. Export zip from any existing phone → copy to new phone
 2. Install APK on new phone (doc 07)
-3. Import zip → enter other phone's IP/PIN in Settings
-4. On the *old surviving* phone: update its peer address to the new phone's IP
+3. Import zip → add the new phone's IP/PIN to one existing phone's registry, and add an existing phone's address on the new phone
+4. First sync pulls the full journal; transitive convergence spreads it to the rest of the mesh per doc 05
 5. Done — the network re-forms around the new member
 
 ## What this system will NEVER need

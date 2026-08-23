@@ -2,9 +2,9 @@
 
 ## Definition
 
-LifeNote is a personal journal application running identically on two Android phones. Entries are written offline, persisted as plain text files locally, and synchronized directly between the two phones over home WiFi using an embedded HTTP server in each app instance.
+LifeNote is a personal journal application running identically on any number of Android phones (practically bounded by household size; tested target ≥ 4 devices). Entries are written offline, persisted as plain text files locally, and synchronized directly among all paired devices whenever they share a local network, using an embedded HTTP server in each app instance.
 
-No third machine participates. No cloud service exists. The system is two peers and nothing else.
+No third machine participates. No cloud service exists. The system is a flat mesh of equal peer devices confined to the LAN — nothing else.
 
 ## Design principles (normative)
 
@@ -18,15 +18,14 @@ All implementation decisions defer to these four rules. A change that violates o
 ## Hardware context
 
 ```
-Phone A (primary)                Phone B
-Android 8.0+                     Android 8.0+
-LifeNote.apk                     LifeNote.apk
-     ▲                                ▲
-     └───────── home WiFi ────────────┘
-              (the only link)
+Phone A        Phone B        Phone C        Phone D
+LifeNote.apk   LifeNote.apk   LifeNote.apk   LifeNote.apk
+     ▲              ▲              ▲              ▲
+     └──────────────┴── local network (WiFi) ──────────┘
+        every device may sync with every other device
 ```
 
-No PC, NAS, or Raspberry Pi is available at home. Both phones hold equal authority; neither depends on the other for local operation.
+No PC, NAS, or Raspberry Pi is required. All devices hold equal authority; none depends on any other for local operation. The only network constraint: peers must share a LAN — the protocol has no internet relay, by charter.
 
 ## Functional specification
 
@@ -47,9 +46,10 @@ No PC, NAS, or Raspberry Pi is available at home. Both phones hold equal authori
 | ID | Requirement |
 |---|---|
 | S1 | Automatic sync attempt on app open and on manual trigger only — never background |
-| S2 | Transfer protocol and merge rules per [doc 05](05-sync-protocol.md) |
-| S3 | Unreachable peer = silent skip; dirty entries persist until next success |
+| S2 | Pairwise transfer protocol per [doc 05](05-sync-protocol.md), executed against every configured peer in turn |
+| S3 | Unreachable peers are skipped silently; dirty entries persist until a successful exchange |
 | S4 | Conflict resolution: last-write-wins on `updated`; losing side preserved as `_conflict-*` entry |
+| S5 | Peer registry: Settings supports adding, editing, and removing any number of peer addresses; convergence is transitive (A↔B↔C spreads entries to all three) |
 
 ### Data safety
 
@@ -77,16 +77,16 @@ Enforced exclusions — proposals to add any of these require a document rewrite
 - Photos, audio, attachments (text-only v1)
 - Custom encryption at rest
 - Background processes, push notifications, widgets
-- Support for ≠ 2 devices
+- Internet relay of any kind — sync is LAN-only by design (this is the feature, not a limitation)
 - Theming systems, animation libraries, WYSIWYG editors
 - Play Store distribution
 
 ## Acceptance criteria
 
-The project is correct when, after five years of OS updates on both phones:
+The project is correct when, after five years of OS updates on all paired phones:
 
-1. Both apps open and operate without reinstall or reconfiguration
-2. Every entry written on either phone exists on both
+1. Every app opens and operates without reinstall or reconfiguration
+2. Every entry written on any phone exists on all phones that were paired at write time and have synced since
 3. Zero rebuilds, zero payments, zero support actions occurred in between
 
 ## Current PC status (verified 2026-08-23)

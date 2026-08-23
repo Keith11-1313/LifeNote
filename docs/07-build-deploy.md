@@ -58,13 +58,13 @@ Any of these works — the APK is just a file:
 3. Back → **Install** → done
 4. Repeat on phone 2
 
-## Step 5 — Pair the two phones (once, ever)
+## Step 5 — Pair the devices (once per device)
 
 1. Phone A: open LifeNote → set a lock PIN → Settings shows `This device: 192.168.1.34` and sync PIN
-2. Phone B: open LifeNote → Settings → enter A's IP + PIN
-3. Phone A Settings: enter B's IP + B's PIN (both directions stored)
+2. Phone B: open LifeNote → Settings → add peer: A's IP + PIN
+3. Phone A Settings: add B's IP + PIN (each device keeps its own registry; repeat for phones C, D, …)
 4. Press **Sync** on either phone → expect "✓ synced"
-5. Optional but recommended: reserve both phones' IPs in the router (DHCP reservation) so this never needs repeating
+5. Optional but recommended: reserve each phone's IP in the router (DHCP reservation) so this never needs repeating
 
 ## Step 6 — Verify (the manual test checklist)
 

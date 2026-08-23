@@ -1,17 +1,17 @@
 # LifeNote
 
-A private, offline-first journal for **2 Android phones** that syncs directly over home WiFi — no cloud, no accounts, no servers, no app store. Built once, maintained never.
+A private, offline-first journal for **any number of Android phones** that sync directly over a shared local network — no cloud, no accounts, no servers, no app store. Built once, maintained never.
 
 ## What it is
 
-One sideloaded APK installed on both phones. Each instance contains a journal UI (rendered in a WebView), stores entries as plain `.md` files, and runs a tiny embedded HTTP server. When both phones share home WiFi with the app open, they exchange entries directly. The system is two peers — nothing else participates.
+One sideloaded APK installed on every phone. Each instance contains a journal UI (rendered in a WebView), stores entries as plain `.md` files, and runs a tiny embedded HTTP server. Whenever paired phones share a WiFi network with the app open, they exchange entries directly — and entries propagate transitively through the mesh until every device converges. The system is equal peers confined to the LAN — nothing else participates.
 
 ## Features
 
 | Area | Capabilities |
 |---|---|
 | Journaling | Write / edit / delete entries · timeline · **calendar view** with entry-day markers · instant search · **Markdown formatting** (bold, italic, headings, lists, quotes, code) |
-| Sync | Direct phone-to-phone over WiFi · auto-sync on open + manual button · offline-first with catch-up · last-write-wins merge with conflict copies |
+| Sync | Direct phone-to-phone over shared WiFi · unlimited peers (pair once, converge always) · auto-sync on open + manual button · offline-first with catch-up · last-write-wins merge with conflict copies |
 | Data safety | Human-readable `.md` storage · one-tap export zip · import/restore · dual redundancy across both phones |
 | Privacy | Startup PIN gate · sync token blocks foreign devices · zero internet communication beyond the paired phone |
 
@@ -39,17 +39,20 @@ One sideloaded APK installed on both phones. Each instance contains a journal UI
 | Stack | Kotlin (~650 lines) + single-file HTML/CSS/JS UI (~1200 lines) |
 | Dependencies | 0 third-party runtime dependencies |
 | Min Android | 8.0 (API 26) · target API 35 |
-| Sync transport | HTTP/1.1 on LAN port `8420`, token-authenticated, last-write-wins |
+| Sync transport | HTTP/1.1 on LAN port `8420`, token-authenticated, last-write-wins, transitive mesh convergence |
 | Data format | One UTF-8 Markdown file per entry (internal ≡ export format) |
 | Install method | Sideloaded APK, no Play Store |
 | Recurring cost | Zero, by design |
 
 ## Device inventory
 
-| Device | Role | Pairing address |
-|---|---|---|
-| Phone A | Primary peer | _set at pairing_ |
-| Phone B | Peer | _set at pairing_ |
+Any Android 8.0+ phone on the household LAN can join. Joining = install APK, enter one existing device's IP + PIN. Peer registries live locally on each device.
+
+| Device | Status |
+|---|---|
+| Phone A | paired |
+| Phone B | paired |
+| +N more | add anytime via Settings |
 
 ## Status
 
