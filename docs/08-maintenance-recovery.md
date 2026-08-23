@@ -53,7 +53,15 @@ Far-future problem (many Android years away). Fix path documented for whoever's 
 
 ### 🔴 Keystore (`keystore.jks`) lost
 Consequence: cannot *upgrade*-install; must uninstall + reinstall + import export zip + re-pair.
-Prevention: keystore lives in 3 places minimum (PC, cloud drive, USB stick) **starting today**.
+Prevention: keystore lives in 3 places minimum (PC, cloud drive, USB stick) **starting today**. GitHub does NOT hold it — `*.jks` is gitignored by policy and never attached to Releases.
+
+## Off-device assets on GitHub
+
+| Asset | Location | Recovery value |
+|---|---|---|
+| Source + all docs | repo `main` branch | Full rebuild capability from any machine (docs 03–07) |
+| Every shipped APK | GitHub Releases (`/releases`) | Reinstall LifeNote without the dev PC |
+| Entry data | **never on GitHub** | Journals stay off the internet by charter; exports live only where you put them |
 
 ## Migration to a brand-new phone (planned, not failure)
 

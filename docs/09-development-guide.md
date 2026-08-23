@@ -72,9 +72,17 @@ Physical phone: enable Developer Options → USB debugging → `adb install -r a
 # 3. archive with versioned name
 Copy-Item app\build\outputs\apk\release\app-release.apk release\LifeNote-v<version>.apk
 # 4. copy to both phones, tap-to-install (doc 07 step 4)
+# 5. publish GitHub Release — the permanent APK shelf, downloadable from any phone browser:
+gh release create v<version> release\LifeNote-v<version>.apk `
+  --title "LifeNote v<version>" `
+  --notes "Changes in this version."
+# 6. push source + docs
+git push origin main
 ```
 
-Rollback policy: previous APKs stay in `release/` forever. Reinstalling an older APK over a newer one is supported (same keystore); data files are forward-compatible by parser contract.
+GitHub Releases double as the off-device APK backup: every shipped build remains downloadable at `github.com/Keith11-1313/LifeNote/releases` indefinitely. Keystore files are never attached to releases and never committed (`*.jks` is gitignored) — doc 08's manual backup policy still governs them.
+
+Rollback policy: previous APKs stay in `release/` AND on GitHub Releases forever. Reinstalling an older APK over a newer one is supported (same keystore); data files are forward-compatible by parser contract.
 
 ## Environment facts (this PC)
 

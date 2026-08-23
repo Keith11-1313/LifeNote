@@ -11,8 +11,28 @@ One-time setup, then permanent capability: the PC compiles APKs offline from her
 | JDK 17 (Temurin 17.0.12) | ✅ present — `JAVA_HOME` points at `C:\Program Files\Eclipse Adoptium\jdk-17.0.12.7-hotspot` |
 | Android SDK cmdline-tools | ❌ install below |
 | SDK platform + build-tools | ❌ install below |
+| GitHub CLI 2.98.0 (`gh`) | ✅ installed, authenticated as `Keith11-1313` (scopes: repo, workflow); remote `origin` = `Keith11-1313/LifeNote`, branch `main` |
 
 Execute Steps 2–4 only. Step 1 exists for rebuild-on-a-new-machine scenarios.
+
+## Step 2b — Install GitHub CLI
+
+```powershell
+winget install --id GitHub.cli --exact --silent --accept-source-agreements --accept-package-agreements
+```
+
+Then authenticate (interactive, once):
+
+```powershell
+gh auth login    # GitHub.com → HTTPS → Yes → Login with a web browser
+```
+
+Verification:
+
+```powershell
+gh auth status                    # ✓ Logged in to github.com
+git push origin main              # must succeed without password prompts
+```
 
 ## What gets installed
 
@@ -21,6 +41,7 @@ Execute Steps 2–4 only. Step 1 exists for rebuild-on-a-new-machine scenarios.
 | **JDK 17** (Temurin) | The compiler that turns Kotlin into runnable bytecode | ~300 MB |
 | **Android SDK Command-line Tools** | Google's downloader for SDK parts (`sdkmanager`) | ~100 MB |
 | **SDK Platform + Build-Tools** | Android's libraries + packaging tools (pulled by `sdkmanager`) | ~500 MB |
+| **GitHub CLI (`gh`)** | Terminal access to GitHub: auth, releases (APK hosting), repo management | ~50 MB |
 | **Gradle** | Build automation — downloaded *automatically* by the wrapper on first build | ~130 MB |
 
 Total disk: ~1 GB in `C:\Users\Jerald\` — nothing installed system-wide, fully removable.
