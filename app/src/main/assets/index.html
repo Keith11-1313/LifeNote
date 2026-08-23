@@ -69,8 +69,9 @@ nav svg{width:22px;height:22px}
 .obtn.danger{color:var(--danger);background:transparent;font-weight:normal}
 .obody{flex:1;overflow-y:auto;padding:14px 16px calc(24px + env(safe-area-inset-bottom))}
 .mdtools{display:flex;gap:6px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto}
-.mdtools button{min-width:38px;padding:7px 11px;border-radius:9px;background:var(--primary-light);
-  color:var(--primary-dark);font-size:13px;font-weight:700}
+.mdtools button{min-width:38px;padding:7px 10px;border-radius:9px;background:var(--primary-light);
+  color:var(--primary-dark);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.mdtools svg{width:19px;height:19px}
 .mdtools button.on{background:var(--primary);color:#fff}
 
 #titleInput{width:100%;border:none;outline:none;background:transparent;font-weight:700;
@@ -239,10 +240,18 @@ nav svg{width:22px;height:22px}
   <div class="mdtools">
     <button onmousedown="return false" onclick="cmdBold()" id="tb-b">B</button>
     <button onmousedown="return false" onclick="cmdItalic()" id="tb-i"><i>I</i></button>
-    <button onmousedown="return false" onclick="cmdHeading(1)">H1</button>
-    <button onmousedown="return false" onclick="cmdHeading(2)">H2</button>
-    <button onmousedown="return false" onclick="cmdList(false)">• List</button>
-    <button onmousedown="return false" onclick="cmdList(true)">1. List</button>
+    <button onmousedown="return false" onclick="cmdHeading(1)" title="Heading">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.243 4.493v7.5m0 0v7.502m0-7.501h10.5m0-7.5v7.5m0 0v7.501m4.501-8.627 2.25-1.5v10.126m0 0h-2.25m2.25 0h2.25"/></svg>
+    </button>
+    <button onmousedown="return false" onclick="cmdHeading(2)" title="Subheading">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21.75 19.5H16.5v-1.609a2.25 2.25 0 0 1 1.244-2.012l2.89-1.445c.651-.326 1.116-.955 1.116-1.683 0-.498-.04-.987-.118-1.463-.135-.825-.835-1.422-1.668-1.489a15.202 15.202 0 0 0-3.464.12M2.243 4.492v7.5m0 0v7.502m0-7.501h10.5m0-7.5v7.5m0 0v7.501"/></svg>
+    </button>
+    <button onmousedown="return false" onclick="cmdList(false)" title="Bullet list">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
+    </button>
+    <button onmousedown="return false" onclick="cmdList(true)" title="Numbered list">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.242 5.992h12m-12 6.003H20.24m-12 5.999h12M4.117 7.495v-3.75H2.99m1.125 3.75H2.99m1.125 0H5.24m-1.92 2.577a1.125 1.125 0 1 1 1.591 1.59l-1.83 1.83h2.16M2.99 15.745h1.125a1.125 1.125 0 0 1 0 2.25H3.74m0-.002h.375a1.125 1.125 0 0 1 0 2.25H2.99"/></svg>
+    </button>
     <button onmousedown="return false" onclick="cmdQuote()">❝ Quote</button>
     <button onmousedown="return false" onclick="cmdCode()">&lt;/&gt;</button>
   </div>
