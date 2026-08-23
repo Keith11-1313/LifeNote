@@ -2,15 +2,842 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <title>LifeNote</title>
 <style>
-  body { font-family: sans-serif; padding: 2rem; }
-  h1 { color: #2E7D74; }
+:root{
+  --primary:#2E7D74; --primary-dark:#1F5850; --primary-light:#E4F0EE;
+  --bg:#F6F7F6; --card:#FFFFFF; --text:#202726; --muted:#7A8683;
+  --border:#E3E7E6; --danger:#B3493F; --shadow:0 1px 4px rgba(20,40,38,.08);
+}
+@media(prefers-color-scheme:dark){
+  :root{ --bg:#141918; --card:#1D2423; --text:#E8ECEB; --muted:#8FA09C;
+    --border:#2A3331; --primary-light:#223230; --shadow:0 1px 4px rgba(0,0,0,.4); }
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);
+  padding-bottom:calc(64px + env(safe-area-inset-bottom));font-size:16px;line-height:1.45}
+button{font:inherit;border:none;background:none;color:inherit;cursor:pointer}
+input,textarea{font:inherit;color:var(--text)}
+
+header{position:sticky;top:0;z-index:10;background:var(--bg);padding:14px 16px 8px;
+  display:flex;align-items:center;justify-content:space-between}
+header h1{font-size:22px;font-weight:700;color:var(--primary)}
+.syncbtn{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;padding:6px 12px;
+  border-radius:18px;background:var(--card);box-shadow:var(--shadow)}
+.syncbtn.busy{opacity:.5}
+main{padding:4px 12px 12px}
+
+nav{position:fixed;bottom:0;left:0;right:0;z-index:20;display:flex;background:var(--card);
+  border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding-top:8px;padding-bottom:6px;font-size:11px;color:var(--muted)}
+nav button.active{color:var(--primary);font-weight:600}
+nav svg{width:22px;height:22px}
+
+.fab{position:fixed;right:18px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:19;
+  width:56px;height:56px;border-radius:50%;background:var(--primary);color:#fff;font-size:30px;
+  line-height:1;box-shadow:0 4px 12px rgba(31,88,80,.4)}
+
+.daylabel{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.06em;margin:14px 6px 6px}
+.entry-card{background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:8px;
+  box-shadow:var(--shadow);cursor:pointer}
+.entry-card .t{font-weight:600;font-size:15.5px;margin-bottom:2px}
+.entry-card .p{font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{text-align:center;color:var(--muted);margin-top:18vh}
+.empty .big{font-size:44px;margin-bottom:8px}
+
+.searchwrap{padding:2px 4px 6px}
+#searchInput{width:100%;padding:10px 14px;border-radius:22px;border:1px solid var(--border);
+  background:var(--card);outline:none;font-size:15px}
+#searchInput:focus{border-color:var(--primary)}
+
+.overlay{position:fixed;inset:0;z-index:40;display:none;flex-direction:column;background:var(--bg)}
+.overlay.open{display:flex}
+.obar{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;
+  padding-top:calc(10px + env(safe-area-inset-top));background:var(--card);border-bottom:1px solid var(--border)}
+.obar .ttl{font-weight:700;font-size:17px}
+.obar .acts{display:flex;gap:6px}
+.obtn{font-size:14px;color:var(--muted);background:var(--primary-light);color:var(--primary-dark);
+  font-weight:600;padding:8px 14px;border-radius:10px}
+.obtn.danger{color:var(--danger);background:transparent;font-weight:normal}
+.obody{flex:1;overflow-y:auto;padding:14px 16px calc(24px + env(safe-area-inset-bottom))}
+.mdtools{display:flex;gap:6px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto}
+.mdtools button{min-width:36px;padding:6px 10px;border-radius:8px;background:var(--primary-light);
+  color:var(--primary-dark);font-size:13px;font-weight:700}
+#editorArea{width:100%;min-height:55vh;border:none;outline:none;resize:none;
+  background:transparent;font-size:16px;line-height:1.6}
+.hint{font-size:12px;color:var(--muted);margin-bottom:8px}
+
+.reader-body h1,.reader-body h2,.reader-body h3{margin:.9em 0 .35em;line-height:1.25}
+.reader-body h1{font-size:23px}.reader-body h2{font-size:20px}.reader-body h3{font-size:17px}
+.reader-body p{margin:.5em 0}
+.reader-body ul,.reader-body ol{margin:.5em 0 .5em 1.4em}
+.reader-body li{margin:.2em 0}
+.reader-body blockquote{border-left:3px solid var(--primary);padding:2px 0 2px 12px;margin:.6em 0;color:var(--muted)}
+.reader-body code{background:var(--primary-light);border-radius:4px;padding:1px 5px;
+  font-family:ui-monospace,monospace;font-size:.9em}
+.reader-meta{font-size:12px;color:var(--muted);margin-bottom:14px}
+
+.calhead{display:flex;align-items:center;justify-content:space-between;padding:8px 6px}
+.calhead .mon{font-weight:700;font-size:17px}
+.calhead button{font-size:22px;color:var(--primary);padding:4px 16px}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:var(--card);
+  border-radius:14px;padding:12px;box-shadow:var(--shadow)}
+.calgrid .dow{text-align:center;font-size:11px;color:var(--muted);font-weight:700;padding:4px 0}
+.calgrid .day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-radius:10px;font-size:14px;cursor:pointer;position:relative}
+.calgrid .day.today{border:1.5px solid var(--primary);font-weight:700;color:var(--primary)}
+.calgrid .day.sel{background:var(--primary);color:#fff;font-weight:700}
+.calgrid .day.dim{opacity:.32}
+.calgrid .day .dot{position:absolute;bottom:6px;width:5px;height:5px;border-radius:50%;background:var(--primary)}
+.calgrid .day.sel .dot{background:#fff}
+.dayresults{margin-top:12px}
+
+.setgroup{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.setgroup h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px}
+.setrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0}
+.setrow label{font-size:14px;color:var(--muted)}
+.setrow input{flex:1;max-width:60%;padding:9px 12px;border-radius:10px;border:1px solid var(--border);
+  background:var(--bg);outline:none;text-align:right}
+.setrow input:focus{border-color:var(--primary)}
+.peer{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.peer:last-child{border:none}
+.peer .nm{font-weight:600;font-size:14.5px}
+.peer .ad{font-size:12.5px;color:var(--muted)}
+.peer .del{color:var(--danger);font-size:18px;padding:4px 8px}
+.btnrow{display:flex;gap:8px;margin-top:8px}
+.btnrow button{flex:1;padding:10px;border-radius:10px;font-size:14px;font-weight:600;
+  background:var(--primary-light);color:var(--primary-dark)}
+.mini{font-size:12px;color:var(--muted);margin-top:8px}
+
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));
+  background:var(--primary-dark);color:#fff;padding:10px 20px;border-radius:24px;font-size:14px;
+  opacity:0;pointer-events:none;transition:opacity .25s;z-index:99;max-width:86vw;text-align:center}
+#toast.show{opacity:.96}
+#mockbanner{position:fixed;top:0;left:0;right:0;z-index:999;text-align:center;font-size:11px;
+  padding:3px;background:var(--primary-dark);color:#fff;display:none}
 </style>
 </head>
 <body>
+
+<div id="mockbanner">mock mode — demo data</div>
+
+<header>
   <h1>LifeNote</h1>
-  <p>Scaffold placeholder — UI lands next.</p>
+  <button class="syncbtn" id="syncBtn" onclick="doSync()">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"/></svg>
+    <span id="syncLabel">Sync</span>
+  </button>
+</header>
+
+<main id="v-journal">
+  <div class="searchwrap">
+    <input id="searchInput" type="search" placeholder="Search entries…" oninput="renderJournal()">
+  </div>
+  <div id="entryList"></div>
+</main>
+
+<main id="v-calendar" style="display:none">
+  <div class="calhead">
+    <button onclick="calMove(-1)">‹</button>
+    <span class="mon" id="calTitle"></span>
+    <button onclick="calMove(1)">›</button>
+  </div>
+  <div class="calgrid" id="calGrid"></div>
+  <div class="dayresults" id="dayResults"></div>
+</main>
+
+<main id="v-settings" style="display:none">
+  <div class="setgroup">
+    <h3>This device</h3>
+    <div class="setrow">
+      <label>Device name</label>
+      <input id="deviceName" maxlength="24" onchange="saveDeviceName()">
+    </div>
+    <div class="mini">Shown beside edited entries during conflicts.</div>
+  </div>
+
+  <div class="setgroup">
+    <h3>Paired peers</h3>
+    <div id="peerList"></div>
+    <div class="btnrow"><button onclick="addPeerForm()">+ Add peer</button></div>
+    <div class="mini">Peers sync only while on the same WiFi network.</div>
+  </div>
+
+  <div class="setgroup">
+    <h3>Data</h3>
+    <div class="btnrow">
+      <button onclick="doExport()">Export backup</button>
+      <button onclick="document.getElementById('importFile').click()">Import</button>
+    </div>
+    <input type="file" id="importFile" accept=".zip" style="display:none" onchange="doImport(this)">
+    <div class="mini">Export saves every entry as readable .md files. Do it monthly.</div>
+  </div>
+
+  <div class="setgroup">
+    <h3>About</h3>
+    <div class="setrow"><span style="font-size:14px">Version</span><span style="font-size:14px">1.0.0</span></div>
+    <div class="mini">Offline-first · LAN-only sync · no cloud, ever.</div>
+  </div>
+</main>
+
+<button class="fab" id="fab" onclick="openEditor()">+</button>
+
+<div class="overlay" id="editorView">
+  <div class="obar">
+    <button onclick="closeEditor()">✕</button>
+    <span class="ttl" id="editorTitle">New entry</span>
+    <div class="acts"><button class="obtn" onclick="saveEntry()">Save</button></div>
+  </div>
+  <div class="mdtools">
+    <button onclick="mdWrap('**','**')">B</button>
+    <button onclick="mdWrap('*','*')"><i>I</i></button>
+    <button onclick="mdPrefix('# ')">H1</button>
+    <button onclick="mdPrefix('## ')">H2</button>
+    <button onclick="mdPrefix('- ')">•</button>
+    <button onclick="mdPrefix('&gt; ')">❝</button>
+    <button onclick="mdWrap('`','`')">&lt;&gt;</button>
+  </div>
+  <div class="obody">
+    <div class="hint">First line becomes the title. Markdown: **bold**, *italic*, headings, lists, quotes.</div>
+    <textarea id="editorArea" placeholder="Today…"></textarea>
+  </div>
+</div>
+
+<div class="overlay" id="readerView">
+  <div class="obar">
+    <button onclick="closeReader()">←</button>
+    <span class="ttl">Entry</span>
+    <div class="acts">
+      <button class="obtn danger" onclick="deleteCurrent()">Delete</button>
+      <button class="obtn" onclick="editCurrent()">Edit</button>
+    </div>
+  </div>
+  <div class="obody">
+    <div class="reader-meta" id="readerMeta"></div>
+    <div class="reader-body" id="readerBody"></div>
+  </div>
+</div>
+
+<nav>
+  <button id="tab-journal" class="active" onclick="switchTab('journal')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15zM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg>
+    Journal
+  </button>
+  <button id="tab-calendar" onclick="switchTab('calendar')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    Calendar
+  </button>
+  <button id="tab-settings" onclick="switchTab('settings')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Settings
+  </button>
+</nav>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* LifeNote UI — talks to the app's own HTTP server on port 8420.
+   Falls back to an in-memory mock when unreachable (browser dev). */
+
+const API_BASE = 'http://127.0.0.1:8420';
+const TOKEN = () => localStorage.getItem('lifenote.token') || 'dev';
+const LS_DEVICE = 'lifenote.device';
+const LS_PEERS  = 'lifenote.peers';
+
+let MOCK_MODE = false;
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ---------- shared entry helpers ---------- */
+function pad2(n){ return String(n).padStart(2, '0'); }
+function isoId(d){
+  return '' + d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate()) +
+         'T' + pad2(d.getHours()) + pad2(d.getMinutes()) + pad2(d.getSeconds());
+}
+function serializeFile(e){
+  return '---\nid: ' + e.id + '\ncreated: ' + e.created + '\nupdated: ' + e.updated +
+         '\ndevice: ' + e.device + '\ndeleted: ' + e.deleted + '\n---\n\n' + e.body + '\n';
+}
+function parseFile(text){
+  const m = text.match(/^---\n([\s\S]*?)\n---\n\n?([\s\S]*)$/);
+  const nowIso = new Date().toISOString();
+  if (!m) return { id:null, created:nowIso, updated:nowIso, device:'?', deleted:false, body:text };
+  const meta = {};
+  m[1].split('\n').forEach(function(l){
+    const i = l.indexOf(':');
+    if (i > 0) meta[l.slice(0,i).trim()] = l.slice(i+1).trim();
+  });
+  return { id: meta.id || null,
+           created: meta.created || nowIso,
+           updated: meta.updated || nowIso,
+           device: meta.device || '?',
+           deleted: meta.deleted === 'true',
+           body: (m[2] || '').replace(/\n$/, '') };
+}
+
+/* ---------- mock backend ---------- */
+const Mock = (function(){
+  let counter = 100;
+
+  function daysAgo(days, h, min){
+    const d = new Date();
+    d.setDate(d.getDate() - days);
+    d.setHours(h || 9, min || 30, 0, 0);
+    return d;
+  }
+  function make(daysBack, body, h, min){
+    const d = daysAgo(daysBack, h, min);
+    return { id: isoId(d) + '-' + String(counter += 7919),
+             created: d.toISOString(), updated: d.toISOString(),
+             device: 'pixel-a', deleted: false, body: body };
+  }
+
+  const entries = [
+    make(0, 'Morning pages\n\nSlept badly but the coffee is good.\nPlanning to **finish the sync engine** today.', 7, 42),
+    make(1, 'Rainy commute\n\nRead three chapters on the bus. The author keeps saying *slowness is a skill* and I keep believing it.', 8, 15),
+    make(2, '# Grocery wins\n\nFound decent olives at last.\n\n- rice\n- olive oil\n- the good bread', 17, 50),
+    make(4, 'Call with Ella\n\n> Slow is also a direction.\n\nShe said that about my project. Keeping it.', 20, 5),
+    make(6, 'Weekend notes\n\nFixed the leaking tap myself. Two videos and one swear word.\n\n`adb install -r` did the rest.', 11, 30),
+    make(9, 'Idea backlog\n\n1. Learn to sharpen knives\n2. Call lolo on Sunday\n3. Sort the shoe box of cables', 21, 12),
+    make(14, 'Two weeks check\n\nJournaling daily still feels like a chore right before doing it, and always worth it after.', 22, 40)
+  ];
+
+  function respond(status, body, isJson){
+    return { ok: status >= 200 && status < 300, status: status,
+             json: function(){ return Promise.resolve(body); },
+             text: function(){ return Promise.resolve(body); } };
+  }
+  function delay(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+  function findLive(){ return entries.filter(function(e){ return !e.deleted; }); }
+
+  return {
+    serializeFile: serializeFile,
+    parseFile: parseFile,
+    isoId: isoId,
+
+    handle: async function(path, opts){
+      opts = opts || {};
+      await delay(120);
+
+      if (path === '/api/index'){
+        return respond(200, findLive().map(function(e){
+          return { id:e.id, created:e.created, updated:e.updated, device:e.device, deleted:e.deleted };
+        }), true);
+      }
+
+      if (path === '/api/ping'){
+        return respond(200, { name:'mock-device', entries: findLive().length }, true);
+      }
+
+      const m = path.match(/^\/api\/entries\/(.+)$/);
+      if (!m) return respond(404, 'no route', false);
+      const id = decodeURIComponent(m[1]);
+      const method = opts.method || 'GET';
+
+      if (method === 'GET'){
+        const e = entries.find(function(x){ return x.id === id; });
+        return e ? respond(200, serializeFile(e), false) : respond(404, 'missing', false);
+      }
+
+      if (method === 'PUT'){
+        const incoming = parseFile(opts.body || '');
+        const i = entries.findIndex(function(x){ return x.id === id; });
+        if (i >= 0 && new Date(entries[i].updated) > new Date(incoming.updated)){
+          return respond(409, 'older', false);
+        }
+        if (i >= 0) entries[i] = incoming; else entries.push(incoming);
+        return respond(200, { saved:true }, true);
+      }
+
+      return respond(404, 'no route', false);
+    }
+  };
+})();
+
+/* ---------- api layer ---------- */
+async function api(path, opts){
+  opts = opts || {};
+  opts.headers = Object.assign({ 'X-LifeNote-Token': TOKEN() }, opts.headers || {});
+  if (!MOCK_MODE){
+    try{
+      const r = await fetch(API_BASE + path, opts);
+      return r;
+    }catch(err){
+      if (window.location.protocol === 'file:' ||
+          window.location.search.indexOf('mock=1') !== -1){
+        enterMockMode();
+      } else {
+        throw err;
+      }
+    }
+  }
+  return Mock.handle(path, opts);
+}
+
+function enterMockMode(){
+  if (MOCK_MODE) return;
+  MOCK_MODE = true;
+  document.getElementById('mockbanner').style.display = 'block';
+}
+
+/* ---------- state ---------- */
+const state = {
+  entries: new Map(),
+  currentId: null,
+  editingId: null,
+  calCursor: new Date(),
+  selectedDay: null
+};
+
+async function loadIndex(){
+  const r = await api('/api/index');
+  const metas = await r.json();
+  for (const m of metas){
+    const known = state.entries.get(m.id);
+    if (!known || known.body === undefined || new Date(m.updated) > new Date(known.updated)){
+      state.entries.set(m.id, Object.assign({}, known || {}, m));
+    }
+  }
+  for (const pair of Array.from(state.entries)){
+    const id = pair[0], e = pair[1];
+    if (e.body === undefined && !e.deleted){
+      try{ await loadBody(id); }catch(_){ /* keep metadata-only */ }
+    }
+  }
+}
+
+async function loadBody(id){
+  const r = await api('/api/entries/' + encodeURIComponent(id));
+  if (!r.ok) return;
+  const parsed = parseFile(await r.text());
+  if (parsed.id === null) parsed.id = id;
+  state.entries.set(id, parsed);
+}
+
+function allEntries(){
+  return Array.from(state.entries.values())
+    .filter(function(e){ return !e.deleted; })
+    .sort(function(a,b){ return new Date(b.created) - new Date(a.created); });
+}
+
+/* ---------- display helpers ---------- */
+function esc(s){
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+function titleOf(e){
+  const first = (e.body || '').split('\n').find(function(l){ return l.trim(); }) || '';
+  return stripMd(first).slice(0, 60) || 'Untitled';
+}
+function previewOf(e){
+  const lines = (e.body || '').split('\n').filter(function(l){ return l.trim(); });
+  return stripMd(lines[1] || '').slice(0, 90);
+}
+function stripMd(s){ return s.replace(/[*_`>#]/g, '').replace(/^\s*\d+\.\s*/, ''); }
+
+function fmtDay(iso){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const yest = new Date(today); yest.setDate(yest.getDate() - 1);
+  const dd = new Date(iso); dd.setHours(0,0,0,0);
+  if (+dd === +today) return 'Today';
+  if (+dd === +yest) return 'Yesterday';
+  return dd.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+}
+function fmtTime(iso){
+  return new Date(iso).toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' });
+}
+
+/* ---------- tabs ---------- */
+function switchTab(name){
+  ['journal','calendar','settings'].forEach(function(v){
+    document.getElementById('v-' + v).style.display = (v === name) ? '' : 'none';
+    document.getElementById('tab-' + v).classList.toggle('active', v === name);
+  });
+  document.getElementById('fab').style.display = (name === 'journal') ? '' : 'none';
+  if (name === 'calendar') renderCalendar();
+  if (name === 'settings') renderSettings();
+}
+
+/* ---------- journal ---------- */
+function renderJournal(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let list = allEntries();
+  if (q){
+    list = list.filter(function(e){
+      return (e.body || '').toLowerCase().indexOf(q) !== -1 ||
+             titleOf(e).toLowerCase().indexOf(q) !== -1;
+    });
+  }
+
+  const el = document.getElementById('entryList');
+  if (!list.length){
+    el.innerHTML = '<div class="empty"><div class="big">📓</div>' +
+      (q ? 'No matches.' : 'No entries yet.<br>Tap <b>+</b> to write your first.') + '</div>';
+    return;
+  }
+
+  let html = '', lastDay = '';
+  for (const e of list){
+    const day = fmtDay(e.created);
+    if (day !== lastDay){ html += '<div class="daylabel">' + day + '</div>'; lastDay = day; }
+    html += '<div class="entry-card" onclick="openReader(\'' + e.id + '\')">' +
+            '<div class="t">' + esc(titleOf(e)) + '</div>' +
+            '<div class="p">' + esc(previewOf(e)) + '</div></div>';
+  }
+  el.innerHTML = html;
+}
+
+/* ---------- markdown renderer (doc 06 subset) ---------- */
+function renderMarkdown(src){
+  const lines = src.split('\n');
+  let html = '', para = [], listType = null, quoteOpen = false;
+
+  function inline(s){
+    let out = esc(s);
+    out = out.replace(/`([^`]+)`/g, '<code>$1</code>');
+    out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    out = out.replace(/(^|\s)_([^_]+)_/g, '$1<em>$2</em>');
+    out = out.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    return out;
+  }
+  function flushPara(){ if (para.length){ html += '<p>' + para.join('<br>') + '</p>'; para = []; } }
+  function closeList(){ if (listType){ html += '</' + listType + '>'; listType = null; } }
+  function closeQuote(){ if (quoteOpen){ html += '</blockquote>'; quoteOpen = false; } }
+
+  for (const rawLine of lines){
+    const line = rawLine.replace(/\s+$/, '');
+    let m;
+
+    if ((m = line.match(/^(#{1,3})\s+(.*)/))){
+      flushPara(); closeList(); closeQuote();
+      html += '<h' + m[1].length + '>' + inline(m[2]) + '</h' + m[1].length + '>';
+
+    } else if (/^\s*$/.test(line)){
+      flushPara(); closeList(); closeQuote();
+
+    } else if ((m = line.match(/^\s*[-*]\s+(.*)/))){
+      flushPara(); closeQuote();
+      if (listType !== 'ul'){ flushPara(); closeList(); html += '<ul>'; listType = 'ul'; }
+      html += '<li>' + inline(m[1]) + '</li>';
+
+    } else if ((m = line.match(/^\s*\d+\.\s+(.*)/))){
+      flushPara(); closeQuote();
+      if (listType !== 'ol'){ flushPara(); closeList(); html += '<ol>'; listType = 'ol'; }
+      html += '<li>' + inline(m[1]) + '</li>';
+
+    } else if ((m = line.match(/^>\s?(.*)/))){
+      flushPara(); closeList();
+      if (!quoteOpen){ closeList(); html += '<blockquote>'; quoteOpen = true; }
+      html += inline(m[1]);
+
+    } else {
+      closeList(); closeQuote();
+      para.push(inline(line));
+    }
+  }
+  flushPara(); closeList(); closeQuote();
+  return html;
+}
+
+/* ---------- reader ---------- */
+async function openReader(id){
+  let e = state.entries.get(id);
+  if (!e) return;
+  if (e.body === undefined) await loadBody(id);
+  e = state.entries.get(id);
+  state.currentId = id;
+  document.getElementById('readerMeta').textContent =
+    new Date(e.created).toLocaleString(undefined, { dateStyle:'long', timeStyle:'short' })
+    + ' · ' + e.device;
+  document.getElementById('readerBody').innerHTML = renderMarkdown(e.body || '');
+  document.getElementById('readerView').classList.add('open');
+}
+function closeReader(){ document.getElementById('readerView').classList.remove('open'); }
+
+function editCurrent(){
+  const e = state.entries.get(state.currentId);
+  closeReader();
+  openEditor(e);
+}
+
+async function deleteCurrent(){
+  const e = state.entries.get(state.currentId);
+  if (!e) return;
+  if (!confirm('Delete "' + titleOf(e) + '"?')) return;
+  e.deleted = true;
+  e.updated = new Date().toISOString();
+  await api('/api/entries/' + encodeURIComponent(e.id), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'text/plain' },
+    body: serializeFile(e)
+  });
+  closeReader();
+  renderJournal();
+  toast('Deleted (tombstone syncs)');
+}
+
+/* ---------- editor ---------- */
+function openEditor(existing){
+  state.editingId = existing ? existing.id : null;
+  document.getElementById('editorTitle').textContent = existing ? 'Edit entry' : 'New entry';
+  document.getElementById('editorArea').value = existing ? existing.body : '';
+  document.getElementById('editorView').classList.add('open');
+  document.getElementById('editorArea').focus();
+}
+function closeEditor(){ document.getElementById('editorView').classList.remove('open'); }
+
+async function saveEntry(){
+  const body = document.getElementById('editorArea').value.replace(/\s+$/, '');
+  if (!body){ toast('Nothing to save'); return; }
+  const nowIso = new Date().toISOString();
+  let e;
+
+  if (state.editingId){
+    e = state.entries.get(state.editingId);
+    e.body = body;
+    e.updated = nowIso;
+  } else {
+    e = { id: isoId(new Date()) + '-' + String(Math.floor(Math.random()*900000) + 100000),
+          created: nowIso, updated: nowIso,
+          device: deviceName(), deleted: false, body: body };
+    state.entries.set(e.id, e);
+  }
+
+  const r = await api('/api/entries/' + encodeURIComponent(e.id), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'text/plain' },
+    body: serializeFile(e)
+  });
+
+  if (r.status === 409){
+    toast('Peer had newer version — pulling theirs');
+    await loadBody(e.id);
+  } else if (r.ok){
+    toast('Saved ✓');
+  } else {
+    toast('Save failed (' + r.status + ')');
+  }
+  closeEditor();
+  renderJournal();
+}
+
+/* md toolbar */
+function mdWrap(before, after){
+  const ta = document.getElementById('editorArea');
+  const s = ta.selectionStart, t = ta.selectionEnd;
+  const sel = ta.value.slice(s, t) || 'text';
+  ta.value = ta.value.slice(0, s) + before + sel + after + ta.value.slice(t);
+  ta.focus();
+  ta.setSelectionRange(s + before.length, s + before.length + sel.length);
+}
+function mdPrefix(prefix){
+  const ta = document.getElementById('editorArea');
+  const s = ta.selectionStart;
+  const lineStart = ta.value.lastIndexOf('\n', Math.max(0, s - 1)) + 1;
+  ta.value = ta.value.slice(0, lineStart) + prefix + ta.value.slice(lineStart);
+  ta.focus();
+  ta.setSelectionRange(s + prefix.length, s + prefix.length);
+}
+
+/* ---------- calendar ---------- */
+function calMove(delta){
+  state.calCursor = new Date(state.calCursor.getFullYear(), state.calCursor.getMonth() + delta, 1);
+  state.selectedDay = null;
+  renderCalendar();
+}
+function sameDay(a, b){
+  return a.getFullYear() === b.getFullYear() &&
+         a.getMonth() === b.getMonth() &&
+         a.getDate() === b.getDate();
+}
+function renderCalendar(){
+  const cur = state.calCursor;
+  document.getElementById('calTitle').textContent =
+    cur.toLocaleDateString(undefined, { month:'long', year:'numeric' });
+
+  const grid = document.getElementById('calGrid');
+  const dows = ['Mo','Tu','We','Th','Fr','Sa','Su'];
+  let html = dows.map(function(d){ return '<div class="dow">' + d + '</div>'; }).join('');
+
+  const first = new Date(cur.getFullYear(), cur.getMonth(), 1);
+  const startOffset = (first.getDay() + 6) % 7;
+  const daysInMonth = new Date(cur.getFullYear(), cur.getMonth() + 1, 0).getDate();
+  const today = new Date();
+
+  const byDay = {};
+  for (const e of allEntries()){
+    const k = new Date(e.created).toDateString();
+    byDay[k] = (byDay[k] || 0) + 1;
+  }
+
+  const prevDays = new Date(cur.getFullYear(), cur.getMonth(), 0).getDate();
+  for (let i = startOffset - 1; i >= 0; i--){
+    html += '<div class="day dim">' + (prevDays - i) + '</div>';
+  }
+  for (let day = 1; day <= daysInMonth; day++){
+    const date = new Date(cur.getFullYear(), cur.getMonth(), day);
+    const cls = ['day'];
+    if (sameDay(date, today)) cls.push('today');
+    if (state.selectedDay && sameDay(date, state.selectedDay)) cls.push('sel');
+    const dot = byDay[date.toDateString()] ? '<div class="dot"></div>' : '';
+    html += '<div class="' + cls.join(' ') + '" onclick="pickDay(' + day + ')">' + day + dot + '</div>';
+  }
+  const tail = (startOffset + daysInMonth) % 7;
+  if (tail){
+    for (let i = 1; i <= 7 - tail; i++){
+      html += '<div class="day dim">' + i + '</div>';
+    }
+  }
+  grid.innerHTML = html;
+  renderDayResults();
+}
+function pickDay(day){
+  state.selectedDay = new Date(state.calCursor.getFullYear(), state.calCursor.getMonth(), day);
+  renderCalendar();
+}
+function renderDayResults(){
+  const el = document.getElementById('dayResults');
+  if (!state.selectedDay){ el.innerHTML = ''; return; }
+  const list = allEntries().filter(function(e){
+    return sameDay(new Date(e.created), state.selectedDay);
+  });
+  const label = state.selectedDay.toLocaleDateString(undefined,
+    { weekday:'long', month:'long', day:'numeric' });
+  el.innerHTML = '<div class="daylabel">' + label + '</div>' +
+    (list.length
+      ? list.map(function(e){
+          return '<div class="entry-card" onclick="openReader(\'' + e.id + '\')">' +
+                 '<div class="t">' + esc(titleOf(e)) + '</div>' +
+                 '<div class="p">' + fmtTime(e.created) + '</div></div>';
+        }).join('')
+      : '<div class="empty" style="margin-top:24px">Nothing written this day.</div>');
+}
+
+/* ---------- settings ---------- */
+function getPeers(){
+  try{ return JSON.parse(localStorage.getItem(LS_PEERS) || '[]'); }
+  catch(_){ return []; }
+}
+function setPeers(list){ localStorage.setItem(LS_PEERS, JSON.stringify(list)); }
+
+function renderSettings(){
+  document.getElementById('deviceName').value = localStorage.getItem(LS_DEVICE) || '';
+  const peers = getPeers();
+  const box = document.getElementById('peerList');
+  box.innerHTML = peers.length
+    ? peers.map(function(p, i){
+        return '<div class="peer"><div><div class="nm">' + esc(p.name) + '</div>' +
+               '<div class="ad">' + esc(p.addr) + '</div></div>' +
+               '<button class="del" onclick="delPeer(' + i + ')">🗑</button></div>';
+      }).join('')
+    : '<div class="mini" style="margin-top:0">No peers yet. Add your other phone below.</div>';
+}
+function saveDeviceName(){
+  const v = document.getElementById('deviceName').value.trim() || 'android';
+  localStorage.setItem(LS_DEVICE, v);
+  toast('Device name saved');
+}
+function addPeerForm(){
+  const name = prompt('Peer name (e.g. "Pixel B"):');
+  if (!name) return;
+  const addr = prompt('Address shown on that phone (e.g. 192.168.1.34):');
+  if (!addr) return;
+  const peers = getPeers();
+  peers.push({ name: name.trim(), addr: addr.trim() + ':8420' });
+  setPeers(peers);
+  renderSettings();
+  toast('Peer added');
+}
+function delPeer(i){
+  const peers = getPeers();
+  peers.splice(i, 1);
+  setPeers(peers);
+  renderSettings();
+}
+
+/* ---------- sync / export / import ---------- */
+async function doSync(){
+  const btn = document.getElementById('syncBtn');
+  btn.classList.add('busy');
+
+  let msg;
+  try{
+    if (MOCK_MODE){
+      await new Promise(function(r){ setTimeout(r, 600); });
+      msg = 'Demo sync ✓ 2 pulled · 1 pushed';
+    } else {
+      const peers = getPeers();
+      if (!peers.length){
+        msg = 'No peers configured';
+      } else {
+        const reached = [];
+        for (const p of peers){
+          try{
+            const r = await fetch('http://' + p.addr + '/api/ping', {
+              method: 'POST',
+              headers: { 'X-LifeNote-Token': TOKEN() }
+            });
+            if (r.ok) reached.push(p.name);
+          }catch(_){}
+        }
+        msg = reached.length ? 'Synced with: ' + reached.join(', ') : 'No peer reachable';
+      }
+      await loadIndex();
+      renderJournal();
+    }
+  } finally {
+    btn.classList.remove('busy');
+    toast(msg);
+  }
+}
+
+async function doExport(){
+  if (MOCK_MODE){ toast('On-device export shares a zip via Android'); return; }
+  try{
+    const r = await fetch(API_BASE + '/api/export', { headers: { 'X-LifeNote-Token': TOKEN() } });
+    if (!r.ok) throw new Error('no endpoint');
+    const blob = await r.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'journal-' + new Date().toISOString().slice(0, 10) + '.zip';
+    a.click();
+    toast('Backup saved to Downloads');
+  }catch(_){
+    toast('Export arrives with the storage layer');
+  }
+}
+function doImport(input){
+  input.value = '';
+  toast('Import arrives with the storage layer');
+}
+
+/* ---------- boot ---------- */
+(async function boot(){
+  if (window.location.protocol === 'file:' ||
+      window.location.search.indexOf('mock=1') !== -1){
+    enterMockMode();
+  }
+  try{
+    await loadIndex();
+  }catch(err){
+    enterMockMode();
+    await loadIndex();
+  }
+  renderJournal();
+})();
+</script>
 </body>
 </html>
