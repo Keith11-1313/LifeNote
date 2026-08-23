@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -14,9 +14,9 @@ html[data-theme="dark"]{
   --bg:#141918; --card:#1D2423; --text:#E8ECEB; --muted:#8FA09C;
   --border:#2A3331; --shadow:0 1px 4px rgba(0,0,0,.4);
 }
-html[data-fsize="s"] body{font-size:14px}
-html[data-fsize="m"] body{font-size:16px}
-html[data-fsize="l"] body{font-size:18px}
+html[data-fsize="s"]{font-size:13px}
+html[data-fsize="m"]{font-size:16px}
+html[data-fsize="l"]{font-size:20px}
 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
@@ -27,8 +27,8 @@ input,textarea{font:inherit;color:var(--text)}
 
 header{position:sticky;top:0;z-index:10;background:var(--bg);padding:14px 16px 8px;
   display:flex;align-items:center;justify-content:space-between}
-header h1{font-size:22px;font-weight:700;color:var(--primary)}
-.syncbtn{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;padding:6px 12px;
+header h1{font-size:1.35rem;font-weight:700;color:var(--primary)}
+.syncbtn{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:6px;padding:6px 12px;
   border-radius:18px;background:var(--card);box-shadow:var(--shadow)}
 .syncbtn.busy{opacity:.5}
 main{padding:4px 12px 12px}
@@ -36,19 +36,23 @@ main{padding:4px 12px 12px}
 nav{position:fixed;bottom:0;left:0;right:0;z-index:20;display:flex;background:var(--card);
   border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
-  padding-top:8px;padding-bottom:6px;font-size:11px;color:var(--muted)}
+  padding-top:8px;padding-bottom:6px;font-size:.72rem;color:var(--muted)}
 nav button.active{color:var(--primary);font-weight:600}
 nav svg{width:22px;height:22px}
 
-.fab{position:fixed;right:18px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:19;
-  width:56px;height:56px;border-radius:50%;background:var(--primary);color:#fff;font-size:30px;
-  line-height:1;box-shadow:0 4px 12px rgba(31,88,80,.4)}
+.fab{position:fixed;right:18px;bottom:calc(74px + env(safe-area-inset-bottom));z-index:19;
+  width:58px;height:58px;border-radius:19px;background:var(--primary);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 6px rgba(0,0,0,.18), 0 8px 20px rgba(0,0,0,.22);
+  transition:transform .12s ease}
+.fab:active{transform:scale(.92)}
+.fab svg{width:28px;height:28px}
 
-.daylabel{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;
+.daylabel{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;
   letter-spacing:.06em;margin:14px 6px 6px}
 .entry-card{background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:8px;
   box-shadow:var(--shadow);cursor:pointer}
-.entry-card .t{font-weight:600;font-size:15.5px;margin-bottom:2px}
+.entry-card .t{font-weight:600;font-size:1rem;margin-bottom:2px}
 .entry-card .p{font-size:.85em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .empty{text-align:center;color:var(--muted);margin-top:18vh}
 .empty .big{font-size:44px;margin-bottom:8px}
@@ -64,21 +68,21 @@ nav svg{width:22px;height:22px}
   padding-top:calc(8px + env(safe-area-inset-top));background:var(--card);border-bottom:1px solid var(--border)}
 .obar > button{justify-self:start;display:inline-flex;align-items:center;justify-content:center;
   min-width:36px;min-height:36px;border-radius:10px;color:var(--muted)}
-.obar .ttl{font-weight:700;font-size:17px;line-height:1;text-align:center}
+.obar .ttl{font-weight:700;font-size:1.05rem;line-height:1;text-align:center}
 .obar .acts{justify-self:end;display:flex;gap:6px}
 .obar .acts .obtn{display:inline-flex;align-items:center;justify-content:center;min-height:36px}
-.obtn{font-size:14px;background:var(--primary-light);color:var(--primary-dark);
+.obtn{font-size:.9rem;background:var(--primary-light);color:var(--primary-dark);
   font-weight:600;padding:8px 14px;border-radius:10px}
 .obtn.danger{color:var(--danger);background:transparent;font-weight:normal}
 .obody{flex:1;overflow-y:auto;padding:14px 16px calc(24px + env(safe-area-inset-bottom))}
 .mdtools{display:flex;gap:6px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto}
 .mdtools button{min-width:38px;padding:7px 10px;border-radius:9px;background:var(--primary-light);
-  color:var(--primary-dark);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  color:var(--primary-dark);font-size:.85rem;font-weight:700;display:flex;align-items:center;justify-content:center}
 .mdtools svg{width:19px;height:19px}
 .mdtools button.on{background:var(--primary);color:#fff}
 
 #titleInput{width:100%;border:none;outline:none;background:transparent;font-weight:700;
-  font-size:22px;margin-bottom:4px}
+  font-size:1.4rem;margin-bottom:4px}
 #titleInput::placeholder{color:var(--muted);opacity:.55}
 #editorBody{min-height:52vh;outline:none;line-height:1.6}
 #editorBody:empty::before{content:attr(data-placeholder);color:var(--muted);opacity:.55;pointer-events:none}
@@ -91,21 +95,21 @@ nav svg{width:22px;height:22px}
   font-family:ui-monospace,monospace;font-size:.9em}
 
 .reader-body h1,.reader-body h2,.reader-body h3{margin:.9em 0 .35em;line-height:1.25}
-.reader-body h1{font-size:23px}.reader-body h2{font-size:20px}.reader-body h3{font-size:17px}
+.reader-body h1{font-size:1.45rem}.reader-body h2{font-size:1.25rem}.reader-body h3{font-size:1.075rem}
 .reader-body p{margin:.5em 0}
 .reader-body ul,.reader-body ol{margin:.5em 0 .5em 1.4em}
 .reader-body li{margin:.2em 0}
 .reader-body blockquote{border-left:3px solid var(--primary);padding:2px 0 2px 12px;margin:.6em 0;color:var(--muted)}
 .reader-body code{background:var(--primary-light);border-radius:4px;padding:1px 5px;
   font-family:ui-monospace,monospace;font-size:.9em}
-.reader-meta{font-size:12px;color:var(--muted);margin-bottom:14px}
+.reader-meta{font-size:.75rem;color:var(--muted);margin-bottom:14px}
 
 .calhead{display:flex;align-items:center;justify-content:space-between;padding:8px 6px}
-.calhead .mon{font-weight:700;font-size:17px}
+.calhead .mon{font-weight:700;font-size:1.05rem}
 .calhead button{font-size:22px;color:var(--primary);padding:4px 16px}
 .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:var(--card);
   border-radius:14px;padding:12px;box-shadow:var(--shadow)}
-.calgrid .dow{text-align:center;font-size:11px;color:var(--muted);font-weight:700;padding:4px 0}
+.calgrid .dow{text-align:center;font-size:.7rem;color:var(--muted);font-weight:700;padding:4px 0}
 .calgrid .day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   border-radius:10px;cursor:pointer;position:relative}
 .calgrid .day.today{border:1.5px solid var(--primary);font-weight:700;color:var(--primary)}
@@ -116,40 +120,40 @@ nav svg{width:22px;height:22px}
 .dayresults{margin-top:12px}
 
 .setgroup{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow)}
-.setgroup h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px}
+.setgroup h3{font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px}
 .setrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0}
-.setrow label{font-size:14px;color:var(--muted)}
+.setrow label{font-size:.875rem;color:var(--muted)}
 .setrow input{flex:1;max-width:60%;padding:9px 12px;border-radius:10px;border:1px solid var(--border);
   background:var(--bg);outline:none;text-align:right}
 .setrow input:focus{border-color:var(--primary)}
 .peer{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
 .peer:last-child{border:none}
-.peer .nm{font-weight:600;font-size:14.5px}
-.peer .ad{font-size:12.5px;color:var(--muted)}
-.peer .del{color:var(--danger);font-size:18px;padding:4px 8px}
+.peer .nm{font-weight:600;font-size:.92rem}
+.peer .ad{font-size:.78rem;color:var(--muted)}
+.peer .del{color:var(--danger);font-size:1.1rem;padding:4px 8px}
 .btnrow{display:flex;gap:8px;margin-top:8px}
-.btnrow button{flex:1;padding:10px;border-radius:10px;font-size:14px;font-weight:600;
+.btnrow button{flex:1;padding:10px;border-radius:10px;font-size:.9rem;font-weight:600;
   background:var(--primary-light);color:var(--primary-dark)}
-.mini{font-size:12px;color:var(--muted);margin-top:8px}
+.mini{font-size:.75rem;color:var(--muted);margin-top:8px}
 
 .seg{display:flex;background:var(--bg);border-radius:10px;padding:3px;gap:3px}
-.seg button{flex:1;padding:7px 10px;border-radius:8px;font-size:13px;color:var(--muted)}
+.seg button{flex:1;padding:7px 10px;border-radius:8px;font-size:.82rem;color:var(--muted)}
 .seg button.on{background:var(--primary);color:#fff;font-weight:600}
 .swatches{display:flex;gap:10px;padding:4px 0}
 .swatch{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent}
 .swatch.on{border-color:var(--text);box-shadow:0 0 0 2px var(--card) inset}
 
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));
-  background:var(--primary-dark);color:#fff;padding:10px 20px;border-radius:24px;font-size:14px;
+  background:var(--primary-dark);color:#fff;padding:10px 20px;border-radius:24px;font-size:.875rem;
   opacity:0;pointer-events:none;transition:opacity .25s;z-index:99;max-width:86vw;text-align:center}
 #toast.show{opacity:.96}
-#mockbanner{position:fixed;top:0;left:0;right:0;z-index:999;text-align:center;font-size:11px;
+#mockbanner{position:fixed;top:0;left:0;right:0;z-index:999;text-align:center;font-size:.7rem;
   padding:3px;background:var(--primary-dark);color:#fff;display:none}
 </style>
 </head>
 <body>
 
-<div id="mockbanner">mock mode — demo data</div>
+<div id="mockbanner">mock mode â€” demo data</div>
 
 <header>
   <h1>LifeNote</h1>
@@ -162,16 +166,16 @@ nav svg{width:22px;height:22px}
 
 <main id="v-journal">
   <div class="searchwrap">
-    <input id="searchInput" type="search" placeholder="Search entries…" oninput="renderJournal()">
+    <input id="searchInput" type="search" placeholder="Search entriesâ€¦" oninput="renderJournal()">
   </div>
   <div id="entryList"></div>
 </main>
 
 <main id="v-calendar" style="display:none">
   <div class="calhead">
-    <button onclick="calMove(-1)">‹</button>
+    <button onclick="calMove(-1)">â€¹</button>
     <span class="mon" id="calTitle"></span>
-    <button onclick="calMove(1)">›</button>
+    <button onclick="calMove(1)">â€º</button>
   </div>
   <div class="calgrid" id="calGrid"></div>
   <div class="dayresults" id="dayResults"></div>
@@ -227,16 +231,18 @@ nav svg{width:22px;height:22px}
 
   <div class="setgroup">
     <h3>About</h3>
-    <div class="setrow"><span style="font-size:14px">Version</span><span style="font-size:14px">1.0.0</span></div>
-    <div class="mini">Offline-first · LAN-only sync · no cloud, ever.</div>
+    <div class="setrow"><span style="font-size:.9rem">Version</span><span style="font-size:.9rem">1.0.0</span></div>
+    <div class="mini">Offline-first Â· LAN-only sync Â· no cloud, ever.</div>
   </div>
 </main>
 
-<button class="fab" id="fab" onclick="openEditor()">+</button>
+<button class="fab" id="fab" onclick="openEditor()" title="New entry">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
 
 <div class="overlay" id="editorView">
   <div class="obar">
-    <button onclick="closeEditor()">✕</button>
+    <button onclick="closeEditor()">âœ•</button>
     <span class="ttl" id="editorTitle">New entry</span>
     <div class="acts"><button class="obtn" onclick="saveEntry()">Save</button></div>
   </div>
@@ -268,13 +274,13 @@ nav svg{width:22px;height:22px}
   </div>
   <div class="obody">
     <input id="titleInput" placeholder="Title" maxlength="60">
-    <div id="editorBody" contenteditable="true" data-placeholder="Start writing…"></div>
+    <div id="editorBody" contenteditable="true" data-placeholder="Start writingâ€¦"></div>
   </div>
 </div>
 
 <div class="overlay" id="readerView">
   <div class="obar">
-    <button onclick="closeReader()">←</button>
+    <button onclick="closeReader()">â†</button>
     <span class="ttl">Entry</span>
     <div class="acts">
       <button class="obtn danger" onclick="deleteCurrent()">Delete</button>
@@ -306,7 +312,7 @@ nav svg{width:22px;height:22px}
 
 <script>
 'use strict';
-/* LifeNote UI — talks to the app's own HTTP server on port 8420.
+/* LifeNote UI â€” talks to the app's own HTTP server on port 8420.
    Falls back to an in-memory mock when unreachable (browser dev). */
 
 const API_BASE = 'http://127.0.0.1:8420';
@@ -610,7 +616,7 @@ function renderJournal(){
 
   const el = document.getElementById('entryList');
   if (!list.length){
-    el.innerHTML = '<div class="empty"><div class="big">📓</div>' +
+    el.innerHTML = '<div class="empty"><div class="big">ðŸ““</div>' +
       (q ? 'No matches.' : 'No entries yet.<br>Tap <b>+</b> to write your first.') + '</div>';
     return;
   }
@@ -745,7 +751,7 @@ async function openReader(id){
   state.currentId = id;
   document.getElementById('readerMeta').textContent =
     new Date(e.created).toLocaleString(undefined, { dateStyle:'long', timeStyle:'short' })
-    + ' · ' + e.device;
+    + ' Â· ' + e.device;
   document.getElementById('readerBody').innerHTML = renderMarkdown(e.body || '');
   document.getElementById('readerView').classList.add('open');
 }
@@ -867,10 +873,10 @@ async function saveEntry(){
   });
 
   if (r.status === 409){
-    toast('Peer had newer version — pulling theirs');
+    toast('Peer had newer version â€” pulling theirs');
     await loadBody(e.id);
   } else if (r.ok){
-    toast('Saved ✓');
+    toast('Saved âœ“');
   } else {
     toast('Save failed (' + r.status + ')');
   }
@@ -967,7 +973,7 @@ function renderSettings(){
     ? peers.map(function(p, i){
         return '<div class="peer"><div><div class="nm">' + esc(p.name) + '</div>' +
                '<div class="ad">' + esc(p.addr) + '</div></div>' +
-               '<button class="del" onclick="delPeer(' + i + ')">🗑</button></div>';
+               '<button class="del" onclick="delPeer(' + i + ')">ðŸ—‘</button></div>';
       }).join('')
     : '<div class="mini" style="margin-top:0">No peers yet. Add your other phone below.</div>';
 }
@@ -1003,7 +1009,7 @@ async function doSync(){
   try{
     if (MOCK_MODE){
       await new Promise(function(r){ setTimeout(r, 600); });
-      msg = 'Demo sync ✓ 2 pulled · 1 pushed';
+      msg = 'Demo sync âœ“ 2 pulled Â· 1 pushed';
     } else {
       const peers = getPeers();
       if (!peers.length){
