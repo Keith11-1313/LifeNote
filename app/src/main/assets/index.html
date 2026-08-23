@@ -10,14 +10,18 @@
   --bg:#F6F7F6; --card:#FFFFFF; --text:#202726; --muted:#7A8683;
   --border:#E3E7E6; --danger:#B3493F; --shadow:0 1px 4px rgba(20,40,38,.08);
 }
-@media(prefers-color-scheme:dark){
-  :root{ --bg:#141918; --card:#1D2423; --text:#E8ECEB; --muted:#8FA09C;
-    --border:#2A3331; --primary-light:#223230; --shadow:0 1px 4px rgba(0,0,0,.4); }
+html[data-theme="dark"]{
+  --bg:#141918; --card:#1D2423; --text:#E8ECEB; --muted:#8FA09C;
+  --border:#2A3331; --shadow:0 1px 4px rgba(0,0,0,.4);
 }
+html[data-fsize="s"] body{font-size:14px}
+html[data-fsize="m"] body{font-size:16px}
+html[data-fsize="l"] body{font-size:18px}
+
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);
-  padding-bottom:calc(64px + env(safe-area-inset-bottom));font-size:16px;line-height:1.45}
+  padding-bottom:calc(64px + env(safe-area-inset-bottom));line-height:1.45}
 button{font:inherit;border:none;background:none;color:inherit;cursor:pointer}
 input,textarea{font:inherit;color:var(--text)}
 
@@ -45,13 +49,13 @@ nav svg{width:22px;height:22px}
 .entry-card{background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:8px;
   box-shadow:var(--shadow);cursor:pointer}
 .entry-card .t{font-weight:600;font-size:15.5px;margin-bottom:2px}
-.entry-card .p{font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entry-card .p{font-size:.85em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .empty{text-align:center;color:var(--muted);margin-top:18vh}
 .empty .big{font-size:44px;margin-bottom:8px}
 
 .searchwrap{padding:2px 4px 6px}
 #searchInput{width:100%;padding:10px 14px;border-radius:22px;border:1px solid var(--border);
-  background:var(--card);outline:none;font-size:15px}
+  background:var(--card);outline:none}
 #searchInput:focus{border-color:var(--primary)}
 
 .overlay{position:fixed;inset:0;z-index:40;display:none;flex-direction:column;background:var(--bg)}
@@ -60,16 +64,27 @@ nav svg{width:22px;height:22px}
   padding-top:calc(10px + env(safe-area-inset-top));background:var(--card);border-bottom:1px solid var(--border)}
 .obar .ttl{font-weight:700;font-size:17px}
 .obar .acts{display:flex;gap:6px}
-.obtn{font-size:14px;color:var(--muted);background:var(--primary-light);color:var(--primary-dark);
+.obtn{font-size:14px;background:var(--primary-light);color:var(--primary-dark);
   font-weight:600;padding:8px 14px;border-radius:10px}
 .obtn.danger{color:var(--danger);background:transparent;font-weight:normal}
 .obody{flex:1;overflow-y:auto;padding:14px 16px calc(24px + env(safe-area-inset-bottom))}
 .mdtools{display:flex;gap:6px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto}
-.mdtools button{min-width:36px;padding:6px 10px;border-radius:8px;background:var(--primary-light);
+.mdtools button{min-width:38px;padding:7px 11px;border-radius:9px;background:var(--primary-light);
   color:var(--primary-dark);font-size:13px;font-weight:700}
-#editorArea{width:100%;min-height:55vh;border:none;outline:none;resize:none;
-  background:transparent;font-size:16px;line-height:1.6}
-.hint{font-size:12px;color:var(--muted);margin-bottom:8px}
+.mdtools button.on{background:var(--primary);color:#fff}
+
+#titleInput{width:100%;border:none;outline:none;background:transparent;font-weight:700;
+  font-size:22px;margin-bottom:4px}
+#titleInput::placeholder{color:var(--muted);opacity:.55}
+#editorBody{min-height:52vh;outline:none;line-height:1.6}
+#editorBody:empty::before{content:attr(data-placeholder);color:var(--muted);opacity:.55;pointer-events:none}
+#editorBody h1{font-size:24px;margin:.7em 0 .3em}
+#editorBody h2{font-size:20px;margin:.7em 0 .3em}
+#editorBody ul,#editorBody ol{margin:.4em 0 .4em 1.4em}
+#editorBody li{margin:.15em 0}
+#editorBody blockquote{border-left:3px solid var(--primary);padding:2px 0 2px 12px;margin:.5em 0;color:var(--muted)}
+#editorBody code{background:var(--primary-light);border-radius:4px;padding:1px 5px;
+  font-family:ui-monospace,monospace;font-size:.9em}
 
 .reader-body h1,.reader-body h2,.reader-body h3{margin:.9em 0 .35em;line-height:1.25}
 .reader-body h1{font-size:23px}.reader-body h2{font-size:20px}.reader-body h3{font-size:17px}
@@ -88,7 +103,7 @@ nav svg{width:22px;height:22px}
   border-radius:14px;padding:12px;box-shadow:var(--shadow)}
 .calgrid .dow{text-align:center;font-size:11px;color:var(--muted);font-weight:700;padding:4px 0}
 .calgrid .day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  border-radius:10px;font-size:14px;cursor:pointer;position:relative}
+  border-radius:10px;cursor:pointer;position:relative}
 .calgrid .day.today{border:1.5px solid var(--primary);font-weight:700;color:var(--primary)}
 .calgrid .day.sel{background:var(--primary);color:#fff;font-weight:700}
 .calgrid .day.dim{opacity:.32}
@@ -112,6 +127,13 @@ nav svg{width:22px;height:22px}
 .btnrow button{flex:1;padding:10px;border-radius:10px;font-size:14px;font-weight:600;
   background:var(--primary-light);color:var(--primary-dark)}
 .mini{font-size:12px;color:var(--muted);margin-top:8px}
+
+.seg{display:flex;background:var(--bg);border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;padding:7px 10px;border-radius:8px;font-size:13px;color:var(--muted)}
+.seg button.on{background:var(--primary);color:#fff;font-weight:600}
+.swatches{display:flex;gap:10px;padding:4px 0}
+.swatch{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent}
+.swatch.on{border-color:var(--text);box-shadow:0 0 0 2px var(--card) inset}
 
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));
   background:var(--primary-dark);color:#fff;padding:10px 20px;border-radius:24px;font-size:14px;
@@ -152,6 +174,27 @@ nav svg{width:22px;height:22px}
 </main>
 
 <main id="v-settings" style="display:none">
+  <div class="setgroup">
+    <h3>Appearance</h3>
+    <div class="setrow"><label>Theme</label>
+      <div class="seg" id="segTheme">
+        <button onclick="setTheme('auto')">Auto</button>
+        <button onclick="setTheme('light')">Light</button>
+        <button onclick="setTheme('dark')">Dark</button>
+      </div>
+    </div>
+    <div class="setrow"><label>Accent</label>
+      <div class="swatches" id="swatches"></div>
+    </div>
+    <div class="setrow"><label>Text size</label>
+      <div class="seg" id="segSize">
+        <button onclick="setFSize('s')">S</button>
+        <button onclick="setFSize('m')">M</button>
+        <button onclick="setFSize('l')">L</button>
+      </div>
+    </div>
+  </div>
+
   <div class="setgroup">
     <h3>This device</h3>
     <div class="setrow">
@@ -194,17 +237,18 @@ nav svg{width:22px;height:22px}
     <div class="acts"><button class="obtn" onclick="saveEntry()">Save</button></div>
   </div>
   <div class="mdtools">
-    <button onclick="mdWrap('**','**')">B</button>
-    <button onclick="mdWrap('*','*')"><i>I</i></button>
-    <button onclick="mdPrefix('# ')">H1</button>
-    <button onclick="mdPrefix('## ')">H2</button>
-    <button onclick="mdPrefix('- ')">•</button>
-    <button onclick="mdPrefix('&gt; ')">❝</button>
-    <button onclick="mdWrap('`','`')">&lt;&gt;</button>
+    <button onmousedown="return false" onclick="cmdBold()" id="tb-b">B</button>
+    <button onmousedown="return false" onclick="cmdItalic()" id="tb-i"><i>I</i></button>
+    <button onmousedown="return false" onclick="cmdHeading(1)">H1</button>
+    <button onmousedown="return false" onclick="cmdHeading(2)">H2</button>
+    <button onmousedown="return false" onclick="cmdList(false)">• List</button>
+    <button onmousedown="return false" onclick="cmdList(true)">1. List</button>
+    <button onmousedown="return false" onclick="cmdQuote()">❝ Quote</button>
+    <button onmousedown="return false" onclick="cmdCode()">&lt;/&gt;</button>
   </div>
   <div class="obody">
-    <div class="hint">First line becomes the title. Markdown: **bold**, *italic*, headings, lists, quotes.</div>
-    <textarea id="editorArea" placeholder="Today…"></textarea>
+    <input id="titleInput" placeholder="Title" maxlength="60">
+    <div id="editorBody" contenteditable="true" data-placeholder="Start writing…"></div>
   </div>
 </div>
 
@@ -249,6 +293,9 @@ const API_BASE = 'http://127.0.0.1:8420';
 const TOKEN = () => localStorage.getItem('lifenote.token') || 'dev';
 const LS_DEVICE = 'lifenote.device';
 const LS_PEERS  = 'lifenote.peers';
+const LS_THEME  = 'lifenote.theme';
+const LS_ACCENT = 'lifenote.accent';
+const LS_FSIZE  = 'lifenote.fsize';
 
 let MOCK_MODE = false;
 
@@ -260,19 +307,29 @@ function toast(msg){
   t._h = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-/* ---------- shared entry helpers ---------- */
+/* ---------- entry file helpers (doc 06) ---------- */
 function pad2(n){ return String(n).padStart(2, '0'); }
 function isoId(d){
   return '' + d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate()) +
          'T' + pad2(d.getHours()) + pad2(d.getMinutes()) + pad2(d.getSeconds());
 }
+function escAttr(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/\n/g,' '); }
+
 function serializeFile(e){
-  return '---\nid: ' + e.id + '\ncreated: ' + e.created + '\nupdated: ' + e.updated +
-         '\ndevice: ' + e.device + '\ndeleted: ' + e.deleted + '\n---\n\n' + e.body + '\n';
+  const lines = ['---'];
+  lines.push('id: ' + e.id);
+  lines.push('created: ' + e.created);
+  lines.push('updated: ' + e.updated);
+  lines.push('device: ' + e.device);
+  if (e.title) lines.push('title: ' + e.title);
+  lines.push('deleted: ' + e.deleted);
+  lines.push('---');
+  lines.push('');
+  return lines.join('\n') + (e.body || '') + '\n';
 }
 function parseFile(text){
-  const m = text.match(/^---\n([\s\S]*?)\n---\n\n?([\s\S]*)$/);
   const nowIso = new Date().toISOString();
+  const m = text.match(/^---\n([\s\S]*?)\n---\n\n?([\s\S]*)$/);
   if (!m) return { id:null, created:nowIso, updated:nowIso, device:'?', deleted:false, body:text };
   const meta = {};
   m[1].split('\n').forEach(function(l){
@@ -283,6 +340,7 @@ function parseFile(text){
            created: meta.created || nowIso,
            updated: meta.updated || nowIso,
            device: meta.device || '?',
+           title: meta.title || '',
            deleted: meta.deleted === 'true',
            body: (m[2] || '').replace(/\n$/, '') };
 }
@@ -297,24 +355,24 @@ const Mock = (function(){
     d.setHours(h || 9, min || 30, 0, 0);
     return d;
   }
-  function make(daysBack, body, h, min){
+  function make(daysBack, title, body, h, min){
     const d = daysAgo(daysBack, h, min);
     return { id: isoId(d) + '-' + String(counter += 7919),
              created: d.toISOString(), updated: d.toISOString(),
-             device: 'pixel-a', deleted: false, body: body };
+             device: 'pixel-a', title: title, deleted: false, body: body };
   }
 
   const entries = [
-    make(0, 'Morning pages\n\nSlept badly but the coffee is good.\nPlanning to **finish the sync engine** today.', 7, 42),
-    make(1, 'Rainy commute\n\nRead three chapters on the bus. The author keeps saying *slowness is a skill* and I keep believing it.', 8, 15),
-    make(2, '# Grocery wins\n\nFound decent olives at last.\n\n- rice\n- olive oil\n- the good bread', 17, 50),
-    make(4, 'Call with Ella\n\n> Slow is also a direction.\n\nShe said that about my project. Keeping it.', 20, 5),
-    make(6, 'Weekend notes\n\nFixed the leaking tap myself. Two videos and one swear word.\n\n`adb install -r` did the rest.', 11, 30),
-    make(9, 'Idea backlog\n\n1. Learn to sharpen knives\n2. Call lolo on Sunday\n3. Sort the shoe box of cables', 21, 12),
-    make(14, 'Two weeks check\n\nJournaling daily still feels like a chore right before doing it, and always worth it after.', 22, 40)
+    make(0, 'Morning pages', 'Slept badly but the coffee is good.\nPlanning to finish the sync engine today.', 7, 42),
+    make(1, 'Rainy commute', 'Read three chapters on the bus.\nThe author keeps saying slowness is a skill and I keep believing it.', 8, 15),
+    make(2, 'Grocery wins', 'Found decent olives at last.\n\n- rice\n- olive oil\n- the good bread', 17, 50),
+    make(4, '', 'Call with Ella\n\nShe said something I want to remember:\n\nSlow is also a direction.', 20, 5),
+    make(6, 'Weekend notes', 'Fixed the leaking tap myself.\nTwo videos and one swear word did the rest.', 11, 30),
+    make(9, '', 'Idea backlog\n\n1. Learn to sharpen knives\n2. Call lolo on Sunday\n3. Sort the shoe box of cables', 21, 12),
+    make(14, 'Two weeks check', 'Journaling daily still feels like a chore right before doing it, and always worth it after.', 22, 40)
   ];
 
-  function respond(status, body, isJson){
+  function respond(status, body){
     return { ok: status >= 200 && status < 300, status: status,
              json: function(){ return Promise.resolve(body); },
              text: function(){ return Promise.resolve(body); } };
@@ -333,35 +391,36 @@ const Mock = (function(){
 
       if (path === '/api/index'){
         return respond(200, findLive().map(function(e){
-          return { id:e.id, created:e.created, updated:e.updated, device:e.device, deleted:e.deleted };
-        }), true);
+          return { id:e.id, created:e.created, updated:e.updated,
+                   device:e.device, title:e.title, deleted:e.deleted };
+        }));
       }
 
       if (path === '/api/ping'){
-        return respond(200, { name:'mock-device', entries: findLive().length }, true);
+        return respond(200, { name:'mock-device', entries: findLive().length });
       }
 
       const m = path.match(/^\/api\/entries\/(.+)$/);
-      if (!m) return respond(404, 'no route', false);
+      if (!m) return respond(404, 'no route');
       const id = decodeURIComponent(m[1]);
       const method = opts.method || 'GET';
 
       if (method === 'GET'){
         const e = entries.find(function(x){ return x.id === id; });
-        return e ? respond(200, serializeFile(e), false) : respond(404, 'missing', false);
+        return e ? respond(200, serializeFile(e)) : respond(404, 'missing');
       }
 
       if (method === 'PUT'){
         const incoming = parseFile(opts.body || '');
         const i = entries.findIndex(function(x){ return x.id === id; });
         if (i >= 0 && new Date(entries[i].updated) > new Date(incoming.updated)){
-          return respond(409, 'older', false);
+          return respond(409, 'older');
         }
         if (i >= 0) entries[i] = incoming; else entries.push(incoming);
-        return respond(200, { saved:true }, true);
+        return respond(200, { saved:true });
       }
 
-      return respond(404, 'no route', false);
+      return respond(404, 'no route');
     }
   };
 })();
@@ -372,8 +431,7 @@ async function api(path, opts){
   opts.headers = Object.assign({ 'X-LifeNote-Token': TOKEN() }, opts.headers || {});
   if (!MOCK_MODE){
     try{
-      const r = await fetch(API_BASE + path, opts);
-      return r;
+      return await fetch(API_BASE + path, opts);
     }catch(err){
       if (window.location.protocol === 'file:' ||
           window.location.search.indexOf('mock=1') !== -1){
@@ -390,6 +448,52 @@ function enterMockMode(){
   if (MOCK_MODE) return;
   MOCK_MODE = true;
   document.getElementById('mockbanner').style.display = 'block';
+}
+
+/* ---------- appearance ---------- */
+const ACCENTS = {
+  teal:   { main:'#2E7D74', dark:'#1F5850', light:'#E4F0EE' },
+  indigo: { main:'#4C5FB0', dark:'#35427E', light:'#E8EBF7' },
+  plum:   { main:'#8A4FA8', dark:'#61377A', light:'#F2E8F7' },
+  rose:   { main:'#B04A6E', dark:'#7D3450', light:'#F7E8ED' },
+  amber:  { main:'#A8742F', dark:'#755121', light:'#F7EFDF' },
+  forest: { main:'#3E7D46', dark:'#2B5730', light:'#E6F2E8' }
+};
+
+function applyAppearance(){
+  const themePref = localStorage.getItem(LS_THEME) || 'auto';
+  const dark = themePref === 'dark' ||
+    (themePref === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+
+  const acc = ACCENTS[localStorage.getItem(LS_ACCENT)] || ACCENTS.teal;
+  const rs = document.documentElement.style;
+  rs.setProperty('--primary', acc.main);
+  rs.setProperty('--primary-dark', acc.dark);
+  rs.setProperty('--primary-light', acc.light);
+
+  document.documentElement.dataset.fsize = localStorage.getItem(LS_FSIZE) || 'm';
+
+  document.querySelectorAll('#segTheme button').forEach(function(b){
+    b.classList.toggle('on', b.textContent.toLowerCase() === themePref);
+  });
+  document.querySelectorAll('#segSize button').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-v') === (localStorage.getItem(LS_FSIZE) || 'm'));
+  });
+  document.querySelectorAll('.swatch').forEach(function(s){
+    s.classList.toggle('on', s.dataset.k === (localStorage.getItem(LS_ACCENT) || 'teal'));
+  });
+}
+function setTheme(v){ localStorage.setItem(LS_THEME, v); applyAppearance(); }
+function setFSize(v){ localStorage.setItem(LS_FSIZE, v); applyAppearance(); }
+function setAccent(k){ localStorage.setItem(LS_ACCENT, k); applyAppearance(); }
+
+function buildSwatches(){
+  const wrap = document.getElementById('swatches');
+  wrap.innerHTML = Object.keys(ACCENTS).map(function(k){
+    return '<div class="swatch" data-k="' + k + '" style="background:' + ACCENTS[k].main +
+           '" onclick="setAccent(\'' + k + '\')"></div>';
+  }).join('');
 }
 
 /* ---------- state ---------- */
@@ -412,8 +516,8 @@ async function loadIndex(){
   }
   for (const pair of Array.from(state.entries)){
     const id = pair[0], e = pair[1];
-    if (e.body === undefined && !e.deleted){
-      try{ await loadBody(id); }catch(_){ /* keep metadata-only */ }
+    if ((e.body === undefined || e.title === undefined) && !e.deleted){
+      try{ await loadBody(id); }catch(_){}
     }
   }
 }
@@ -439,12 +543,14 @@ function esc(s){
   return d.innerHTML;
 }
 function titleOf(e){
+  if (e.title) return e.title.slice(0, 60);
   const first = (e.body || '').split('\n').find(function(l){ return l.trim(); }) || '';
   return stripMd(first).slice(0, 60) || 'Untitled';
 }
 function previewOf(e){
-  const lines = (e.body || '').split('\n').filter(function(l){ return l.trim(); });
-  return stripMd(lines[1] || '').slice(0, 90);
+  const src = e.title ? e.body : (e.body || '');
+  const lines = src.split('\n').filter(function(l){ return l.trim(); });
+  return stripMd(lines[0] || '').slice(0, 90);
 }
 function stripMd(s){ return s.replace(/[*_`>#]/g, '').replace(/^\s*\d+\.\s*/, ''); }
 
@@ -468,7 +574,7 @@ function switchTab(name){
   });
   document.getElementById('fab').style.display = (name === 'journal') ? '' : 'none';
   if (name === 'calendar') renderCalendar();
-  if (name === 'settings') renderSettings();
+  if (name === 'settings'){ renderSettings(); applyAppearance(); }
 }
 
 /* ---------- journal ---------- */
@@ -500,7 +606,7 @@ function renderJournal(){
   el.innerHTML = html;
 }
 
-/* ---------- markdown renderer (doc 06 subset) ---------- */
+/* ---------- markdown -> html (reader + editor load) ---------- */
 function renderMarkdown(src){
   const lines = src.split('\n');
   let html = '', para = [], listType = null, quoteOpen = false;
@@ -552,6 +658,64 @@ function renderMarkdown(src){
   return html;
 }
 
+/* ---------- html -> markdown (save path, inverse of above) ---------- */
+function inlineToMd(node){
+  let out = '';
+  node.childNodes.forEach(function(ch){
+    if (ch.nodeType === 3){ out += ch.nodeValue; return; }
+    if (ch.nodeName === 'BR'){ out += '\n'; return; }
+    const tag = ch.nodeName;
+    if (tag === 'STRONG' || tag === 'B') out += '**' + inlineToMd(ch) + '**';
+    else if (tag === 'EM' || tag === 'I') out += '*' + inlineToMd(ch) + '*';
+    else if (tag === 'CODE') out += '`' + inlineToMd(ch) + '`';
+    else out += inlineToMd(ch);
+  });
+  return out;
+}
+
+function blockToLines(node, prefix){
+  prefix = prefix || '';
+  const lines = [];
+  node.childNodes.forEach(function(ch){
+    if (ch.nodeType === 3){
+      const t = ch.nodeValue.trim();
+      if (t) lines.push(prefix + t);
+      return;
+    }
+    if (ch.nodeName === 'BR'){ return; }
+    const tag = ch.nodeName;
+
+    if (tag === 'H1') lines.push('# ' + inlineToMd(ch).trim());
+    else if (tag === 'H2') lines.push('## ' + inlineToMd(ch).trim());
+    else if (tag === 'H3') lines.push('### ' + inlineToMd(ch).trim());
+    else if (tag === 'UL' || tag === 'OL'){
+      let n = 0;
+      ch.childNodes.forEach(function(li){
+        if (li.nodeName !== 'LI') return;
+        n++;
+        const marker = tag === 'UL' ? '- ' : n + '. ';
+        const inner = li.innerText ? li.innerText.split('\n').filter(Boolean) : [];
+        if (!inner.length){ lines.push(prefix + marker.trim()); return; }
+        lines.push(prefix + marker + inner[0]);
+        for (let k = 1; k < inner.length; k++) lines.push(prefix + inner[k]);
+      });
+    }
+    else if (tag === 'BLOCKQUOTE'){
+      blockToLines(ch, '').forEach(function(l){ lines.push('> ' + l); });
+    }
+    else {
+      const t = inlineToMd(ch).replace(/^\n+|\n+$/g, '');
+      if (t.trim()) t.split('\n').forEach(function(l){ lines.push(prefix + l); });
+    }
+  });
+  return lines;
+}
+
+function editorToMarkdown(){
+  const root = document.getElementById('editorBody');
+  return blockToLines(root, '').join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
 /* ---------- reader ---------- */
 async function openReader(id){
   let e = state.entries.get(id);
@@ -589,30 +753,90 @@ async function deleteCurrent(){
   toast('Deleted (tombstone syncs)');
 }
 
-/* ---------- editor ---------- */
+/* ---------- editor (WYSIWYG) ---------- */
 function openEditor(existing){
   state.editingId = existing ? existing.id : null;
   document.getElementById('editorTitle').textContent = existing ? 'Edit entry' : 'New entry';
-  document.getElementById('editorArea').value = existing ? existing.body : '';
+  document.getElementById('titleInput').value = existing ? (existing.title || '') : '';
+  document.getElementById('editorBody').innerHTML =
+    existing ? renderMarkdown(existing.body || '') : '';
   document.getElementById('editorView').classList.add('open');
-  document.getElementById('editorArea').focus();
+  document.getElementById('titleInput').focus();
 }
 function closeEditor(){ document.getElementById('editorView').classList.remove('open'); }
 
+function exec(cmd, val){
+  document.getElementById('editorBody').focus();
+  document.execCommand(cmd, false, val || null);
+  refreshToolbarStates();
+}
+function cmdBold(){ exec('bold'); }
+function cmdItalic(){ exec('italic'); }
+function cmdList(ordered){ exec(ordered ? 'insertOrderedList' : 'insertUnorderedList'); }
+
+function cmdHeading(level){
+  const sel = window.getSelection();
+  let inside = false;
+  if (sel && sel.anchorNode){
+    let n = sel.anchorNode;
+    while (n && n.id !== 'editorBody'){
+      if (n.nodeName === 'H' + level){ inside = true; break; }
+      n = n.parentNode;
+    }
+  }
+  exec('formatBlock', inside ? '<p>' : '<h' + level + '>');
+}
+function cmdQuote(){
+  const sel = window.getSelection();
+  let inside = false;
+  if (sel && sel.anchorNode){
+    let n = sel.anchorNode;
+    while (n && n.id !== 'editorBody'){
+      if (n.nodeName === 'BLOCKQUOTE'){ inside = true; break; }
+      n = n.parentNode;
+    }
+  }
+  exec('formatBlock', inside ? '<p>' : '<blockquote>');
+}
+function cmdCode(){
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed){ toast('Select text first'); return; }
+  const range = sel.getRangeAt(0);
+  const code = document.createElement('code');
+  try{
+    range.surroundContents(code);
+  }catch(_){
+    code.appendChild(range.extractContents());
+    range.insertNode(code);
+  }
+  refreshToolbarStates();
+}
+
+function refreshToolbarStates(){
+  try{
+    document.getElementById('tb-b').classList.toggle('on', document.queryCommandState('bold'));
+    document.getElementById('tb-i').classList.toggle('on', document.queryCommandState('italic'));
+  }catch(_){}
+}
+
 async function saveEntry(){
-  const body = document.getElementById('editorArea').value.replace(/\s+$/, '');
-  if (!body){ toast('Nothing to save'); return; }
+  const title = document.getElementById('titleInput').value.trim();
+  const body = editorToMarkdown();
+
+  if (!title && !body){ toast('Nothing to save'); return; }
+
   const nowIso = new Date().toISOString();
   let e;
 
   if (state.editingId){
     e = state.entries.get(state.editingId);
+    e.title = title;
     e.body = body;
     e.updated = nowIso;
   } else {
     e = { id: isoId(new Date()) + '-' + String(Math.floor(Math.random()*900000) + 100000),
           created: nowIso, updated: nowIso,
-          device: deviceName(), deleted: false, body: body };
+          device: deviceName(), title: title, deleted: false, body: body };
     state.entries.set(e.id, e);
   }
 
@@ -632,24 +856,6 @@ async function saveEntry(){
   }
   closeEditor();
   renderJournal();
-}
-
-/* md toolbar */
-function mdWrap(before, after){
-  const ta = document.getElementById('editorArea');
-  const s = ta.selectionStart, t = ta.selectionEnd;
-  const sel = ta.value.slice(s, t) || 'text';
-  ta.value = ta.value.slice(0, s) + before + sel + after + ta.value.slice(t);
-  ta.focus();
-  ta.setSelectionRange(s + before.length, s + before.length + sel.length);
-}
-function mdPrefix(prefix){
-  const ta = document.getElementById('editorArea');
-  const s = ta.selectionStart;
-  const lineStart = ta.value.lastIndexOf('\n', Math.max(0, s - 1)) + 1;
-  ta.value = ta.value.slice(0, lineStart) + prefix + ta.value.slice(lineStart);
-  ta.focus();
-  ta.setSelectionRange(s + prefix.length, s + prefix.length);
 }
 
 /* ---------- calendar ---------- */
@@ -826,6 +1032,14 @@ function doImport(input){
 
 /* ---------- boot ---------- */
 (async function boot(){
+  buildSwatches();
+  applyAppearance();
+  if (window.matchMedia){
+    try{
+      window.matchMedia('(prefers-color-scheme: dark)')
+        .addEventListener('change', function(){ applyAppearance(); });
+    }catch(_){}
+  }
   if (window.location.protocol === 'file:' ||
       window.location.search.indexOf('mock=1') !== -1){
     enterMockMode();
