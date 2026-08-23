@@ -33,13 +33,13 @@ No PC, NAS, or Raspberry Pi is required. All devices hold equal authority; none 
 
 | ID | Requirement |
 |---|---|
-| F1 | Create entries containing optional title (first body line ≤ 60 chars displays as title) and body text |
+| F1 | Create entries containing a short title (≤ 60 chars) and a formatted body |
 | F2 | Edit any entry; `updated` timestamp changes on save |
 | F3 | Delete any entry; deletion creates a tombstone that propagates on sync |
 | F4 | Timeline view: all non-deleted entries, newest first, grouped by date |
 | F5 | Calendar view: current month grid, dot marker on days containing entries, tap day → filtered list |
-| F6 | Search: case-insensitive substring match across entry bodies, results ranked newest first |
-| F7 | Markdown rendering in entry detail view per the contract in [doc 06](06-storage-format.md); raw text in editor; plain-text preview in lists |
+| F6 | Search: case-insensitive substring match across titles and bodies, results ranked newest first |
+| F7 | Notes-app style editing (WYSIWYG toolbar over the Markdown subset per [doc 06](06-storage-format.md)); Markdown rendering in reader; plain-text preview in lists |
 
 ### Sync
 

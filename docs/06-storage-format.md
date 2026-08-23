@@ -39,13 +39,14 @@ She said something I want to remember: "slow is also a direction."
 
 | Field | Required | Purpose | Rules |
 |---|---|---|---|
-| `id` | ✅ | Permanent sync identity | `<YYYYMMDDTHHmmss>-<6 hex>`; immutable; never reused |
+| `id` | ✅ | Permanent sync identity | `<YYYYMMDDTHHmmss>-<6 digits>`; immutable; never reused |
 | `created` | ✅ | Write instant | ISO-8601 with timezone offset |
 | `updated` | ✅ | Last-edit instant; **sole LWW arbiter** | ISO-8601 with offset; bumped on every mutation including deletes |
 | `device` | ✅ | Origin of current version | Freeform label from Settings; aids human conflict review |
-| `deleted` | ✅ | Tombstone flag | `true` → hidden from all views; purged 30 days after `updated`, on both peers, independently |
+| `title` | ⬜ optional | Display title in lists/reader | ≤ 60 chars, single line; omitted when empty |
+| `deleted` | ✅ | Tombstone flag | `true` → hidden from all views; purged 30 days after `updated`, on all peers, independently |
 
-No dedicated title field exists in v1. First body line ≤ 60 characters renders as the list title. Less structure = fewer rules to maintain.
+The UI writes a dedicated `title:` key. Bodies without one fall back to "first body line displays as title" for hand-written files — both forms render identically everywhere.
 
 ## Parser contract
 
@@ -61,7 +62,7 @@ Binding for `JournalStore.kt` and every future tool that reads these files:
 
 Entries are stored as raw Markdown. Storage is always the source of truth; rendering is display-only and never rewrites stored bytes.
 
-**Editor:** plain textarea. A toolbar inserts symbol pairs but performs no rich-text manipulation.
+**Editor:** WYSIWYG-style (title field + formatted body, notes-app interaction). The toolbar applies real visual formatting; on save the formatted content is serialized onto exactly the Markdown subset below. Hand-written Markdown symbols in stored files remain fully supported — both authoring paths produce identical storage.
 
 **Reader view renders exactly this subset:**
 

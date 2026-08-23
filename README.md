@@ -10,7 +10,7 @@ One sideloaded APK installed on every phone. Each instance contains a journal UI
 
 | Area | Capabilities |
 |---|---|
-| Journaling | Write / edit / delete entries · timeline · **calendar view** with entry-day markers · instant search · **Markdown formatting** (bold, italic, headings, lists, quotes, code) |
+| Journaling | Write / edit / delete with notes-app style editor (title + formatted body) · timeline · **calendar view** with entry-day markers · instant search · Markdown storage rendered beautifully |
 | Sync | Direct phone-to-phone over shared WiFi · unlimited peers (pair once, converge always) · auto-sync on open + manual button · offline-first with catch-up · last-write-wins merge with conflict copies |
 | Data safety | Human-readable `.md` storage · one-tap export zip · import/restore · dual redundancy across both phones |
 | Privacy | Startup PIN gate · sync token blocks foreign devices · zero internet communication beyond the paired phone |

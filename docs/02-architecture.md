@@ -48,10 +48,10 @@ Owns all pixels and interactions. Contains five views:
 | View | Function | Requirement IDs |
 |---|---|---|
 | Timeline | Date-grouped entry list, search bar on top | F4, F6 |
-| Editor | Full-screen text area + Markdown symbol toolbar | F1–F3, F7 |
+| Editor | Notes-app style: title field + WYSIWYG body toolbar, serialized to the Markdown subset on save | F1–F3, F7 |
 | Calendar | Month grid, entry-day markers, day drill-down | F5 |
 | Reader | Rendered Markdown view of one entry | F7 |
-| Settings | Peer IP/PIN, device name, export/import, sync button | S1–S4, D2–D3 |
+| Settings | Appearance (theme/accent/text size), peer registry CRUD, device name, export/import, sync button | S1–S5, D2–D3 |
 
 **Mock mode contract:** when opened with `?mock=1` (or when `fetch` to the local API fails), the UI runs against an in-memory fake dataset. This enables browser-only development with zero Android tooling.
 
