@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- journal cover -->
+    <path
+        android:fillColor="#2E7D74"
+        android:pathData="M8,4 L36,4 A4,4 0 0 1 40,8 L40,40 A4,4 0 0 1 36,44 L8,44 Z" />
+    <!-- spine -->
+    <path
+        android:fillColor="#1F5850"
+        android:pathData="M8,4 L14,4 L14,44 L8,44 Z" />
+    <!-- pen stroke -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M20,32 L33,15 M30,13 L35,19" />
+</vector>
