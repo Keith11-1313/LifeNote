@@ -1,0 +1,20 @@
+# --- Gradle ---
+.gradle/
+build/
+app/build/
+
+# --- IDE ---
+.idea/
+*.iml
+.vscode/
+
+# --- Android SDK local paths ---
+local.properties
+
+# --- Signing secrets (NEVER commit; see docs/08 backup policy) ---
+*.jks
+*.keystore
+
+# --- OS noise ---
+Thumbs.db
+.DS_Store
