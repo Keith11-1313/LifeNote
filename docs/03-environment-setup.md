@@ -9,11 +9,11 @@ One-time setup, then permanent capability: the PC compiles APKs offline from her
 | Component | State |
 |---|---|
 | JDK 17 (Temurin 17.0.12) | ✅ present — `JAVA_HOME` points at `C:\Program Files\Eclipse Adoptium\jdk-17.0.12.7-hotspot` |
-| Android SDK cmdline-tools | ❌ install below |
-| SDK platform + build-tools | ❌ install below |
+| Android SDK cmdline-tools | ✅ installed at `%LOCALAPPDATA%\Android\Sdk\cmdline-tools\latest` |
+| SDK platform + build-tools | ✅ installed — platform-tools 37, platforms;android-35, build-tools;35.0.0 |
 | GitHub CLI 2.98.0 (`gh`) | ✅ installed, authenticated as `Keith11-1313` (scopes: repo, workflow); remote `origin` = `Keith11-1313/LifeNote`, branch `main` |
 
-Execute Steps 2–4 only. Step 1 exists for rebuild-on-a-new-machine scenarios.
+**Environment is complete — all steps below are reference for rebuild-on-a-new-machine scenarios only.**
 
 ## Step 2b — Install GitHub CLI
 
