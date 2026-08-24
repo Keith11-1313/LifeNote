@@ -153,7 +153,7 @@ nav svg{width:22px;height:22px}
 </head>
 <body>
 
-<div id="mockbanner">mock mode â€” demo data</div>
+<div id="mockbanner">mock mode — demo data</div>
 
 <header>
   <h1>LifeNote</h1>
@@ -166,16 +166,16 @@ nav svg{width:22px;height:22px}
 
 <main id="v-journal">
   <div class="searchwrap">
-    <input id="searchInput" type="search" placeholder="Search entriesâ€¦" oninput="renderJournal()">
+    <input id="searchInput" type="search" placeholder="Search entries…" oninput="renderJournal()">
   </div>
   <div id="entryList"></div>
 </main>
 
 <main id="v-calendar" style="display:none">
   <div class="calhead">
-    <button onclick="calMove(-1)">â€¹</button>
+    <button onclick="calMove(-1)">‹</button>
     <span class="mon" id="calTitle"></span>
-    <button onclick="calMove(1)">â€º</button>
+    <button onclick="calMove(1)">›</button>
   </div>
   <div class="calgrid" id="calGrid"></div>
   <div class="dayresults" id="dayResults"></div>
@@ -232,7 +232,7 @@ nav svg{width:22px;height:22px}
   <div class="setgroup">
     <h3>About</h3>
     <div class="setrow"><span style="font-size:.9rem">Version</span><span style="font-size:.9rem">1.0.0</span></div>
-    <div class="mini">Offline-first Â· LAN-only sync Â· no cloud, ever.</div>
+    <div class="mini">Offline-first · LAN-only sync · no cloud, ever.</div>
   </div>
 </main>
 
@@ -242,7 +242,7 @@ nav svg{width:22px;height:22px}
 
 <div class="overlay" id="editorView">
   <div class="obar">
-    <button onclick="closeEditor()">âœ•</button>
+    <button onclick="closeEditor()">✕</button>
     <span class="ttl" id="editorTitle">New entry</span>
     <div class="acts"><button class="obtn" onclick="saveEntry()">Save</button></div>
   </div>
@@ -274,13 +274,13 @@ nav svg{width:22px;height:22px}
   </div>
   <div class="obody">
     <input id="titleInput" placeholder="Title" maxlength="60">
-    <div id="editorBody" contenteditable="true" data-placeholder="Start writingâ€¦"></div>
+    <div id="editorBody" contenteditable="true" data-placeholder="Start writing…"></div>
   </div>
 </div>
 
 <div class="overlay" id="readerView">
   <div class="obar">
-    <button onclick="closeReader()">â†</button>
+    <button onclick="closeReader()">←</button>
     <span class="ttl">Entry</span>
     <div class="acts">
       <button class="obtn danger" onclick="deleteCurrent()">Delete</button>
@@ -312,7 +312,7 @@ nav svg{width:22px;height:22px}
 
 <script>
 'use strict';
-/* LifeNote UI â€” talks to the app's own HTTP server on port 8420.
+/* LifeNote UI — talks to the app's own HTTP server on port 8420.
    Falls back to an in-memory mock when unreachable (browser dev). */
 
 const API_BASE = 'http://127.0.0.1:8420';
@@ -616,7 +616,7 @@ function renderJournal(){
 
   const el = document.getElementById('entryList');
   if (!list.length){
-    el.innerHTML = '<div class="empty"><div class="big">ðŸ““</div>' +
+    el.innerHTML = '<div class="empty"><div class="big">📓</div>' +
       (q ? 'No matches.' : 'No entries yet.<br>Tap <b>+</b> to write your first.') + '</div>';
     return;
   }
@@ -751,7 +751,7 @@ async function openReader(id){
   state.currentId = id;
   document.getElementById('readerMeta').textContent =
     new Date(e.created).toLocaleString(undefined, { dateStyle:'long', timeStyle:'short' })
-    + ' Â· ' + e.device;
+    + ' · ' + e.device;
   document.getElementById('readerBody').innerHTML = renderMarkdown(e.body || '');
   document.getElementById('readerView').classList.add('open');
 }
@@ -873,10 +873,10 @@ async function saveEntry(){
   });
 
   if (r.status === 409){
-    toast('Peer had newer version â€” pulling theirs');
+    toast('Peer had newer version — pulling theirs');
     await loadBody(e.id);
   } else if (r.ok){
-    toast('Saved âœ“');
+    toast('Saved ✓');
   } else {
     toast('Save failed (' + r.status + ')');
   }
@@ -973,7 +973,7 @@ function renderSettings(){
     ? peers.map(function(p, i){
         return '<div class="peer"><div><div class="nm">' + esc(p.name) + '</div>' +
                '<div class="ad">' + esc(p.addr) + '</div></div>' +
-               '<button class="del" onclick="delPeer(' + i + ')">ðŸ—‘</button></div>';
+               '<button class="del" onclick="delPeer(' + i + ')">🗑</button></div>';
       }).join('')
     : '<div class="mini" style="margin-top:0">No peers yet. Add your other phone below.</div>';
 }
@@ -1009,7 +1009,7 @@ async function doSync(){
   try{
     if (MOCK_MODE){
       await new Promise(function(r){ setTimeout(r, 600); });
-      msg = 'Demo sync âœ“ 2 pulled Â· 1 pushed';
+      msg = 'Demo sync ✓ 2 pulled · 1 pushed';
     } else {
       const peers = getPeers();
       if (!peers.length){

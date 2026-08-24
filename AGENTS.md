@@ -53,6 +53,7 @@ These are restated here because assistants violate them most often:
 - Prefer editing existing docs over creating new ones; a new numbered doc requires user approval.
 - Keep docs declarative and present tense ("Sync uses LWW", never "will use").
 - Commands written in docs must be PowerShell-compatible (this dev PC is Windows).
+- **PowerShell text operations on repo files MUST be encoding-explicit:** use `Get-Content -Encoding UTF8` / `[System.IO.File]::ReadAllText` + `WriteAllText` with `UTF8Encoding`. Bare `Get-Content`/`Set-Content` round-trips corrupt non-ASCII characters (mojibake) — this bug shipped once already; never again.
 - Use pinned versions everywhere; never write "latest".
 - After finishing any task, run through the reflection matrix (§2) before declaring done.
 
