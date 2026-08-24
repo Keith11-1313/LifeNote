@@ -19,7 +19,7 @@ LifeNote/
 │   ├── build.gradle.kts             ← sdkVersion 26 min / 35 target, app id, signing config
 │   ├── keystore.jks                 ← release signing key — 30-year validity, BACKED UP (doc 08)
 │   └── src/main/
-│       ├── AndroidManifest.xml      ← app label/icon, INTERNET permission, nothing else
+│       ├── AndroidManifest.xml      ← app label/icon, INTERNET permission, adjustResize
 │       ├── assets/
 │       │   └── index.html           ← ENTIRE UI: 5 views + CSS + JS + mock-mode adapter
 │       └── java/com/lifenote/
