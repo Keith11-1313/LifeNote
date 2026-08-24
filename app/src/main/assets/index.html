@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -242,7 +242,7 @@ nav svg{width:22px;height:22px}
 
 <div class="overlay" id="editorView">
   <div class="obar">
-    <button onclick="closeEditor()">✕</button>
+    <button onclick="tryCloseEditor()">✕</button>
     <span class="ttl" id="editorTitle">New entry</span>
     <div class="acts"><button class="obtn" onclick="saveEntry()">Save</button></div>
   </div>
@@ -253,19 +253,19 @@ nav svg{width:22px;height:22px}
     <button onmousedown="return false" onclick="cmdItalic()" id="tb-i" title="Italic">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5.248 20.246H9.05m0 0h3.696m-3.696 0 5.893-16.502m0 0h-3.697m3.697 0h3.803"/></svg>
     </button>
-    <button onmousedown="return false" onclick="cmdHeading(1)" title="Heading">
+    <button onmousedown="return false" onclick="cmdHeading(1)" id="tb-h1" title="Heading">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.243 4.493v7.5m0 0v7.502m0-7.501h10.5m0-7.5v7.5m0 0v7.501m4.501-8.627 2.25-1.5v10.126m0 0h-2.25m2.25 0h2.25"/></svg>
     </button>
-    <button onmousedown="return false" onclick="cmdHeading(2)" title="Subheading">
+    <button onmousedown="return false" onclick="cmdHeading(2)" id="tb-h2" title="Subheading">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21.75 19.5H16.5v-1.609a2.25 2.25 0 0 1 1.244-2.012l2.89-1.445c.651-.326 1.116-.955 1.116-1.683 0-.498-.04-.987-.118-1.463-.135-.825-.835-1.422-1.668-1.489a15.202 15.202 0 0 0-3.464.12M2.243 4.492v7.5m0 0v7.502m0-7.501h10.5m0-7.5v7.5m0 0v7.501"/></svg>
     </button>
-    <button onmousedown="return false" onclick="cmdList(false)" title="Bullet list">
+    <button onmousedown="return false" onclick="cmdList(false)" id="tb-ul" title="Bullet list">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
     </button>
-    <button onmousedown="return false" onclick="cmdList(true)" title="Numbered list">
+    <button onmousedown="return false" onclick="cmdList(true)" id="tb-ol" title="Numbered list">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.242 5.992h12m-12 6.003H20.24m-12 5.999h12M4.117 7.495v-3.75H2.99m1.125 3.75H2.99m1.125 0H5.24m-1.92 2.577a1.125 1.125 0 1 1 1.591 1.59l-1.83 1.83h2.16M2.99 15.745h1.125a1.125 1.125 0 0 1 0 2.25H3.74m0-.002h.375a1.125 1.125 0 0 1 0 2.25H2.99"/></svg>
     </button>
-    <button onmousedown="return false" onclick="cmdQuote()" title="Quote">
+    <button onmousedown="return false" onclick="cmdQuote()" id="tb-quote" title="Quote">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.625 9.75a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 0 1 .778-.332 48.294 48.294 0 0 0 5.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"/></svg>
     </button>
     <button onmousedown="return false" onclick="cmdCode()" title="Code">
@@ -273,8 +273,8 @@ nav svg{width:22px;height:22px}
     </button>
   </div>
   <div class="obody">
-    <input id="titleInput" placeholder="Title" maxlength="60">
-    <div id="editorBody" contenteditable="true" data-placeholder="Start writing…"></div>
+    <input id="titleInput" placeholder="Title" maxlength="60" oninput="state.dirty = true">
+    <div id="editorBody" contenteditable="true" data-placeholder="Start writing…" oninput="state.dirty = true"></div>
   </div>
 </div>
 
@@ -720,7 +720,8 @@ function blockToLines(node, prefix){
         if (li.nodeName !== 'LI') return;
         n++;
         const marker = tag === 'UL' ? '- ' : n + '. ';
-        const inner = li.innerText ? li.innerText.split('\n').filter(Boolean) : [];
+        const inner = inlineToMd(li).replace(/^\n+|\n+$/g, '')
+          .split('\n').filter(function(l){ return l.trim(); });
         if (!inner.length){ lines.push(prefix + marker.trim()); return; }
         lines.push(prefix + marker + inner[0]);
         for (let k = 1; k < inner.length; k++) lines.push(prefix + inner[k]);
@@ -782,6 +783,7 @@ async function deleteCurrent(){
 /* ---------- editor (WYSIWYG) ---------- */
 function openEditor(existing){
   state.editingId = existing ? existing.id : null;
+  state.dirty = false;
   document.getElementById('editorTitle').textContent = existing ? 'Edit entry' : 'New entry';
   document.getElementById('titleInput').value = existing ? (existing.title || '') : '';
   document.getElementById('editorBody').innerHTML =
@@ -789,7 +791,24 @@ function openEditor(existing){
   document.getElementById('editorView').classList.add('open');
   document.getElementById('titleInput').focus();
 }
+function tryCloseEditor(){
+  if (state.dirty && !confirm('Discard unsaved changes?')) return;
+  state.dirty = false;
+  closeEditor();
+}
 function closeEditor(){ document.getElementById('editorView').classList.remove('open'); }
+
+function handleAndroidBack(){
+  if (document.getElementById('editorView').classList.contains('open')){
+    tryCloseEditor();
+    return true;
+  }
+  if (document.getElementById('readerView').classList.contains('open')){
+    closeReader();
+    return true;
+  }
+  return false;
+}
 
 function exec(cmd, val){
   document.getElementById('editorBody').focus();
@@ -838,18 +857,45 @@ function cmdCode(){
   refreshToolbarStates();
 }
 
+function inBlock(tag){
+  const sel = window.getSelection();
+  if (!sel || !sel.anchorNode) return false;
+  let n = sel.anchorNode;
+  while (n && n.id !== 'editorBody'){
+    if (n.nodeName === tag) return true;
+    n = n.parentNode;
+  }
+  return false;
+}
+
 function refreshToolbarStates(){
+  const set = function(id, on){
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('on', !!on);
+  };
   try{
-    document.getElementById('tb-b').classList.toggle('on', document.queryCommandState('bold'));
-    document.getElementById('tb-i').classList.toggle('on', document.queryCommandState('italic'));
+    set('tb-b', document.queryCommandState('bold'));
+    set('tb-i', document.queryCommandState('italic'));
+    set('tb-ul', document.queryCommandState('insertUnorderedList'));
+    set('tb-ol', document.queryCommandState('insertOrderedList'));
+    set('tb-h1', inBlock('H1'));
+    set('tb-h2', inBlock('H2'));
+    set('tb-quote', inBlock('BLOCKQUOTE'));
   }catch(_){}
 }
+
+document.addEventListener('selectionchange', function(){
+  if (document.getElementById('editorView').classList.contains('open')){
+    refreshToolbarStates();
+  }
+});
 
 async function saveEntry(){
   const title = document.getElementById('titleInput').value.trim();
   const body = editorToMarkdown();
 
   if (!title && !body){ toast('Nothing to save'); return; }
+  state.dirty = false;
 
   const nowIso = new Date().toISOString();
   let e;
@@ -1025,7 +1071,9 @@ async function doSync(){
             if (r.ok) reached.push(p.name);
           }catch(_){}
         }
-        msg = reached.length ? 'Synced with: ' + reached.join(', ') : 'No peer reachable';
+        msg = reached.length
+          ? 'Reached: ' + reached.join(', ') + ' (transfer arrives in phase 3)'
+          : 'No peer reachable';
       }
       await loadIndex();
       renderJournal();
