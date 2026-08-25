@@ -56,4 +56,4 @@ Any Android 8.0+ phone on the household LAN can join. Joining = install APK, ent
 
 ## Status
 
-**Specification complete.** Docs 01–09 are binding. Implementation follows doc order: environment (03) → scaffold + UI (02/04) → storage (06) → server → sync (05) → ship per (07).
+**Implementation ~70% complete.** Environment (03) ✅ · scaffold + full UI ✅ · storage layer (06) ✅ · embedded HTTP server ✅ · sync engine (05) ⬜ · PIN gate (P1) ⬜ · ship per (07) ⬜.

@@ -39,12 +39,12 @@ LifeNote/
 
 | File | ~Lines | Sole responsibility |
 |---|---|---|
-| `index.html` | ~1200 | All five views, Markdown renderer (~80 lines), mock adapter |
-| `MainActivity.kt` | ~100 | Shell lifecycle only |
-| `HttpServer.kt` | ~200 | TCP accept, HTTP parse, route dispatch |
-| `JournalStore.kt` | ~180 | File CRUD, front matter parse/serialize |
+| `index.html` | ~1300 | All five views, Markdown renderer (~80 lines), mock adapter |
+| `MainActivity.kt` | ~110 | Shell lifecycle, server start/stop, JS dialog bridge |
+| `HttpServer.kt` | ~205 | TCP accept, HTTP parse, token auth, route dispatch, CORS |
+| `JournalStore.kt` | ~185 | File CRUD, front-matter parse, atomic writes, LWW, tombstone purge |
 | `SyncEngine.kt` | ~160 | Protocol execution, LWW decisions |
-| `Settings.kt` | ~90 | Lock PIN, device name, peer registry CRUD (name/address/port per peer) |
+| `Settings.kt` | ~55 | Token (generated once), device name, peers JSON (SharedPreferences) |
 
 Total first-party code: **~1900 lines.** Third-party runtime dependencies: **0.**
 

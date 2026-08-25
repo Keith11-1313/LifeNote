@@ -90,6 +90,8 @@ All requests require header `X-LifeNote-Token: <PIN>`. All bodies are UTF-8. Ser
 | `GET` | `/api/entries/{id}` | — | `200` full entry file (front matter + body) |
 | `PUT` | `/api/entries/{id}` | full entry file | `200` if accepted, `409` if receiver's copy is newer (LWW reject — initiator then pulls instead) |
 | `GET` | `/` | — | the UI (used only for debugging in a PC browser) |
+| `GET` | `/api/config` | — | `200 {"token":"...","device":"..."}` — **loopback-only**, hands the local UI its own token; never answers remote peers |
+| `OPTIONS` | any | — | CORS preflight reply (WebView UI on `file://` needs it for `PUT`) |
 
 Anything else → `404`. Malformed HTTP → connection closed. There is no auth role system, no sessions, no cookies — one shared PIN is the whole security model, appropriate for a home LAN.
 
