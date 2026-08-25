@@ -407,9 +407,6 @@ const Mock = (function(){
   function findLive(){ return entries.filter(function(e){ return !e.deleted; }); }
 
   return {
-    serializeFile: serializeFile,
-    parseFile: parseFile,
-    isoId: isoId,
 
     handle: async function(path, opts){
       opts = opts || {};
@@ -528,7 +525,8 @@ const state = {
   currentId: null,
   editingId: null,
   calCursor: new Date(),
-  selectedDay: null
+  selectedDay: null,
+  dirty: false
 };
 
 async function loadIndex(){
@@ -574,7 +572,6 @@ function titleOf(e){
   return stripMd(first).slice(0, 60) || 'Untitled';
 }
 function previewOf(e){
-  const src = e.title ? e.body : (e.body || '');
   const lines = src.split('\n').filter(function(l){ return l.trim(); });
   return stripMd(lines[0] || '').slice(0, 90);
 }
@@ -895,6 +892,7 @@ async function saveEntry(){
   const body = editorToMarkdown();
 
   if (!title && !body){ toast('Nothing to save'); return; }
+  state.dirty = false;
   state.dirty = false;
 
   const nowIso = new Date().toISOString();

@@ -38,7 +38,7 @@ One APK, five components, one storage format. Both phones run byte-identical sof
 |---|---|
 | Server lifecycle | Starts HttpServer in `onResume`, stops it in `onPause`. The server never runs while the app is backgrounded |
 | PIN gate | Renders lock screen before WebView; unlocks via Settings-stored PIN |
-| WebView | Loads `file:///android_asset/index.html`; JavaScript enabled; no external origins whitelisted except `127.0.0.1:8420` |
+| WebView | Loads `file:///android_asset/index.html`; JavaScript enabled; DOM storage ON (settings persist via localStorage); JS alert/confirm/prompt bridged to native dialogs (WebView blocks them by default); no external origins except `127.0.0.1:8420` |
 | Back behavior | Back from editor = unsaved-changes prompt |
 
 ### UI — `app/src/main/assets/index.html` (single file: HTML + CSS + JS)
