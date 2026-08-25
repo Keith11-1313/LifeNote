@@ -41,7 +41,7 @@ adb logcat --pid=$(adb shell pidof com.lifenote)
 
 Two emulators on the same host network can pair with each other via `10.0.2.15`-style addresses for end-to-end sync tests without physical phones.
 
-Physical phone: enable Developer Options → USB debugging → `adb install -r app\build\outputs\apk\debug\app-debug.apk`.
+Physical phone: `adb devices` must list it, then **`./deploy.ps1 -launch`** — builds, installs over the existing app (data preserved), and opens it. Uninstalling is only for deliberately wiping data; `-r` updates in place. Live logs: `adb logcat --pid=$(adb shell pidof com.lifenote)`.
 
 ## Engineering rules (binding)
 
