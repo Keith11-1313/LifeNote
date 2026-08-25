@@ -12,9 +12,15 @@ import android.widget.EditText
 class MainActivity : Activity() {
 
     private lateinit var webView: WebView
+    private lateinit var settings: Settings
+    private lateinit var store: JournalStore
+    private var server: HttpServer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        settings = Settings.load(this)
+        store = JournalStore(java.io.File(filesDir, "journal"))
+
         webView = WebView(this)
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
@@ -60,6 +66,19 @@ class MainActivity : Activity() {
         }
         setContentView(webView)
         webView.loadUrl("file:///android_asset/index.html")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val s = HttpServer(8420, store, settings, assets)
+        s.start()
+        server = s
+    }
+
+    override fun onPause() {
+        super.onPause()
+        server?.stop()
+        server = null
     }
 
     override fun onBackPressed() {

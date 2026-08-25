@@ -1117,6 +1117,17 @@ function doImport(input){
     enterMockMode();
   }
   try{
+    if (!MOCK_MODE){
+      const cfg = await fetch(API_BASE + '/api/config').then(function(r){
+        if (!r.ok) throw new Error('config ' + r.status);
+        return r.json();
+      });
+      localStorage.setItem('lifenote.token', cfg.token);
+      if (cfg.device && !localStorage.getItem(LS_DEVICE)){
+        localStorage.setItem(LS_DEVICE, cfg.device);
+      }
+      document.getElementById('deviceName').value = localStorage.getItem(LS_DEVICE) || '';
+    }
     await loadIndex();
   }catch(err){
     enterMockMode();
