@@ -26,7 +26,7 @@ The time since the latest off-device export is the maximum writing window a lost
 
 ### 🔴 Phone lost / broken / stolen
 1. Install the same APK on the replacement phone (doc 07)
-2. Open LifeNote, choose a new lock PIN, and select **Replace this journal**
+2. Open LifeNote, optionally enable a new app-lock password, and select **Replace this journal**
 3. Choose the latest off-device export
 
 ### 🔴 ALL phones lost at once

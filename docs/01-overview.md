@@ -39,7 +39,7 @@ No PC, NAS, network, account, or companion service is required for normal use.
 | F4 | Timeline view: all non-deleted entries, newest first, grouped by date |
 | F5 | Calendar view: current month grid, dot marker on days containing entries, tap day → filtered list |
 | F6 | Search: case-insensitive substring match across titles and bodies, results ranked newest first |
-| F7 | Notes-app style editing (WYSIWYG toolbar over the Markdown subset per [doc 06](06-storage-format.md)); Markdown rendering in reader; plain-text preview in lists; restrained solid-color elevated surfaces, semantic primary actions, borders, and tactile press states give the UI depth without gradients, with accent surfaces adapted for both light and dark themes |
+| F7 | Notes-app style editing (WYSIWYG toolbar over the Markdown subset per [doc 06](06-storage-format.md)); Markdown rendering in reader; plain-text preview in lists; restrained solid-color elevated surfaces, semantic primary actions, borders, large Back targets, and tactile press states give the UI depth without gradients, with accent surfaces adapted for both light and dark themes |
 | F8 | Editor autosaves non-empty changes after a 900 ms idle pause; Done and Android Back flush pending changes before closing, with visible Unsaved/Saving/Saved state |
 | F9 | Each editing session snapshots the prior entry version; Reader exposes the newest 20 revisions and can restore one while preserving the displaced current version |
 
@@ -56,7 +56,7 @@ No PC, NAS, network, account, or companion service is required for normal use.
 
 | ID | Requirement |
 |---|---|
-| P1 | Startup PIN gate before any content renders |
+| P1 | App lock is optional and disabled by default; v1.0.1 removes the legacy mandatory v1.0.0 PIN once, and when the user later enables a lock, a custom LifeNote screen requires the saved password before journal content renders and Settings allows changing or removing it |
 | P2 | The embedded HTTP API binds only to loopback and requires its install-local token header |
 | P3 | The app initiates no outbound network connections |
 | P4 | At-rest protection delegated to Android device encryption |

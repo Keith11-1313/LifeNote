@@ -10,6 +10,15 @@ import java.security.MessageDigest
  */
 class Settings private constructor(private val prefs: SharedPreferences) {
 
+    init {
+        if (!prefs.getBoolean(KEY_OPTIONAL_LOCK_MIGRATED, false)) {
+            prefs.edit()
+                .remove(KEY_LOCK_PIN)
+                .putBoolean(KEY_OPTIONAL_LOCK_MIGRATED, true)
+                .apply()
+        }
+    }
+
     val token: String
         get() {
             var t = prefs.getString(KEY_TOKEN, null)
@@ -20,18 +29,24 @@ class Settings private constructor(private val prefs: SharedPreferences) {
             return t
         }
 
-    var deviceName: String
+    val deviceName: String
         get() = prefs.getString(KEY_DEVICE, null) ?: defaultDeviceName()
-        set(value) = prefs.edit().putString(KEY_DEVICE, value).apply()
 
     val hasLockPin: Boolean get() = prefs.contains(KEY_LOCK_PIN)
 
     fun setLockPin(pin: String) {
-        prefs.edit().putString(KEY_LOCK_PIN, hash(pin)).apply()
+        prefs.edit()
+            .putString(KEY_LOCK_PIN, hash(pin))
+            .putBoolean(KEY_OPTIONAL_LOCK_MIGRATED, true)
+            .apply()
     }
 
     fun matchesLockPin(pin: String): Boolean =
         prefs.getString(KEY_LOCK_PIN, "") == hash(pin)
+
+    fun removeLockPin() {
+        prefs.edit().remove(KEY_LOCK_PIN).apply()
+    }
 
     private fun generateToken(): String {
         val alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -52,6 +67,7 @@ class Settings private constructor(private val prefs: SharedPreferences) {
         private const val KEY_TOKEN = "token"
         private const val KEY_DEVICE = "device_name"
         private const val KEY_LOCK_PIN = "lock_pin"
+        private const val KEY_OPTIONAL_LOCK_MIGRATED = "optional_lock_migrated"
 
         fun load(context: Context): Settings {
             val prefs = context.getSharedPreferences("lifenote", Context.MODE_PRIVATE)

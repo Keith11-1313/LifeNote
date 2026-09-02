@@ -13,7 +13,7 @@ One sideloaded APK contains the journal UI and stores every entry as a plain `.m
 | Journaling | Debounced autosave · per-entry revision history and restore · notes-app style editor · layered journal UI · timeline · calendar · instant search · Markdown storage |
 | Backup & restore | Export readable Markdown zip · merge backup into the current journal · replace the current journal from a backup |
 | Data safety | Human-readable `.md` storage · bounded revision history · staged import validation · atomic replacement · explicit monthly backup workflow |
-| Privacy | Startup PIN gate · zero outbound network communication · local files remain inside Android storage until explicitly exported |
+| Privacy | Optional in-app password lock · zero outbound network communication · local files remain inside Android storage until explicitly exported |
 
 ## Documentation index (normative)
 
@@ -35,8 +35,8 @@ One sideloaded APK contains the journal UI and stores every entry as a plain `.m
 
 | | |
 |---|---|
-| Version | v1.0.0 release candidate |
-| Stack | Kotlin (~960 lines) + single-file HTML/CSS/JS UI (~1220 lines) |
+| Version | v1.0.2 |
+| Stack | Kotlin (~950 lines) + single-file HTML/CSS/JS UI (~1360 lines) |
 | Dependencies | 0 third-party runtime dependencies |
 | Min Android | 8.0 (API 26) · target API 35 |
 | Local transport | HTTP/1.1 loopback on `127.0.0.1:8420`; never exposed to the LAN |
@@ -46,4 +46,4 @@ One sideloaded APK contains the journal UI and stores every entry as a plain `.m
 
 ## Status
 
-**v1 release candidate complete; physical-device acceptance and private-key signing remain.** Full UI ✅ · autosave/history ✅ · storage layer ✅ · loopback API ✅ · PIN gate ✅ · export ✅ · merge/replace import ✅ · optimized release build ✅ · installable debug APK ✅ · physical-device checklist ⬜ · signed release APK ⬜.
+**v1.0.2 release complete.** Production data isolation ✅ · cold-start journal load ✅ · editor autosave/reopen ✅ · autosave/history ✅ · optional app lock ✅ · export/merge/replace physical verification ✅ · browser QA ✅ · debug build/lint ✅ · signed v1.0.2 APK ✅.

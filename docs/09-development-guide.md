@@ -14,7 +14,7 @@ The two-tier setup exists because UI iteration must not pay the Android build ta
 
 ### Tier 1 — Browser-only UI work
 
-`index.html` contains a mock adapter: when loaded with `?mock=1`, or when the local API is unreachable, it runs against an in-memory dataset (~10 fake entries) and simulates archive-control feedback.
+`index.html` contains a mock adapter that runs only when loaded with explicit `?mock=1`. A production API failure never exposes demo entries and instead reports that the local journal is unavailable.
 
 ```powershell
 # from repo root — any static server works; Python's is fine

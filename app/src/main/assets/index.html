@@ -75,7 +75,8 @@ nav svg{width:22px;height:22px}
 .obar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:8px 12px;
   padding-top:calc(8px + env(safe-area-inset-top));background:var(--card);border-bottom:1px solid var(--border);box-shadow:0 3px 12px rgba(20,40,38,.06)}
 .obar > button{justify-self:start;display:inline-flex;align-items:center;justify-content:center;
-  min-width:36px;min-height:36px;border-radius:10px;color:var(--muted)}
+  min-width:48px;min-height:48px;border-radius:14px;color:var(--text);font-size:1.35rem;background:var(--surface);
+  border:1px solid var(--border);box-shadow:var(--inset),0 2px 5px rgba(20,40,38,.08)}
 .obar .ttl{font-family:"Chubbo","Supreme",sans-serif;font-weight:700;font-size:1.08rem;line-height:1;text-align:center}
 .obar .acts{justify-self:end;display:flex;gap:6px}
 .obar .acts .obtn{display:inline-flex;align-items:center;justify-content:center;min-height:36px}
@@ -153,6 +154,29 @@ nav svg{width:22px;height:22px}
 .backup-actions .export-action span{color:rgba(255,255,255,.78)}
 .backup-actions .replace-action{border-color:var(--danger);color:var(--danger)}
 .mini{font-size:.74rem;color:var(--muted);margin-top:10px;line-height:1.55}
+#v-settings{padding-bottom:calc(112px + env(safe-area-inset-bottom))}
+.backup-status{min-height:1.2em;margin-top:10px;font-size:.76rem;color:var(--muted)}
+
+.lock-view{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:22px;
+  background:var(--bg)}
+.lock-view.open{display:flex}
+.lock-card{width:min(100%,390px);background:var(--card);border:1px solid var(--border-strong);border-radius:24px;
+  padding:26px 22px;box-shadow:var(--inset),var(--shadow-raised)}
+.lock-mark{width:52px;height:52px;border-radius:17px;display:flex;align-items:center;justify-content:center;
+  background:var(--primary);color:#fff;font-family:"Chubbo","Supreme",sans-serif;font-size:1.5rem;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 7px 17px rgba(0,0,0,.18)}
+.lock-card h2{font-family:"Chubbo","Supreme",sans-serif;font-size:1.55rem;margin:18px 0 5px}
+.lock-card p{color:var(--muted);font-size:.88rem;margin-bottom:18px}
+.lock-fields{display:grid;gap:10px}
+.lock-fields input{width:100%;min-height:50px;padding:12px 14px;border-radius:12px;border:1px solid var(--border-strong);
+  background:var(--surface);outline:none;box-shadow:var(--inset),inset 0 1px 3px rgba(20,40,38,.05)}
+.lock-fields input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light),var(--inset)}
+.lock-error{min-height:20px;color:var(--danger);font-size:.78rem;padding-top:5px}
+.lock-actions{display:flex;gap:9px;margin-top:8px}
+.lock-actions button{flex:1;min-height:48px;border-radius:12px;border:1px solid var(--border-strong);background:var(--surface);font-weight:700}
+.lock-actions .primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.security-state{font-size:.78rem;color:var(--muted)}
+body.booting header,body.booting main,body.booting .fab,body.booting nav{visibility:hidden}
 
 .seg{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:3px;gap:3px;box-shadow:inset 0 1px 3px rgba(20,40,38,.05)}
 .seg button{flex:1;padding:7px 10px;border-radius:8px;font-size:.82rem;color:var(--muted)}
@@ -185,7 +209,7 @@ nav svg{width:22px;height:22px}
   padding:3px;background:var(--primary-dark);color:#fff;display:none}
 </style>
 </head>
-<body>
+<body class="booting">
 
 <div id="mockbanner">mock mode — demo data</div>
 
@@ -233,12 +257,10 @@ nav svg{width:22px;height:22px}
   </div>
 
   <div class="setgroup">
-    <h3>This device</h3>
-    <div class="setrow">
-      <label>Device name</label>
-      <input id="deviceName" maxlength="24" onchange="saveDeviceName()">
-    </div>
-    <div class="mini">Shown beside edited entries during conflicts.</div>
+    <h3>App lock</h3>
+    <div class="setrow"><span class="security-state" id="securityState">Password protection is off</span></div>
+    <div class="btnrow" id="securityActions"></div>
+    <div class="mini">Optional. Your Android device encryption still protects LifeNote at rest.</div>
   </div>
 
   <div class="setgroup">
@@ -248,15 +270,34 @@ nav svg{width:22px;height:22px}
       <button onclick="doImport('merge')"><strong>Merge a backup</strong><span>Keep this journal and add newer or missing entries.</span></button>
       <button class="replace-action" onclick="doImport('replace')"><strong>Replace this journal</strong><span>Remove current entries and restore the backup exactly.</span></button>
     </div>
-    <div class="mini">Backups never include your lock PIN or appearance settings.</div>
+    <div class="backup-status" id="backupStatus">Ready</div>
+    <div class="mini">Backups never include your app-lock password or appearance settings.</div>
   </div>
 
   <div class="setgroup">
     <h3>About</h3>
-    <div class="setrow"><span style="font-size:.9rem">Version</span><span style="font-size:.9rem">1.0.0</span></div>
+    <div class="setrow"><span style="font-size:.9rem">Version</span><span style="font-size:.9rem">1.0.2</span></div>
     <div class="mini">Offline-first · local backups · no cloud, ever.</div>
   </div>
 </main>
+
+<div class="lock-view" id="lockView">
+  <div class="lock-card">
+    <div class="lock-mark">L</div>
+    <h2 id="lockTitle">Unlock LifeNote</h2>
+    <p id="lockMessage">Enter your password to open your journal.</p>
+    <div class="lock-fields">
+      <input id="currentPassword" type="password" autocomplete="current-password" placeholder="Current password">
+      <input id="newPassword" type="password" autocomplete="new-password" placeholder="New password">
+      <input id="confirmPassword" type="password" autocomplete="new-password" placeholder="Confirm new password">
+    </div>
+    <div class="lock-error" id="lockError"></div>
+    <div class="lock-actions">
+      <button id="lockCancel" onclick="cancelLockAction()">Cancel</button>
+      <button class="primary" id="lockSubmit" onclick="submitLockAction()">Unlock</button>
+    </div>
+  </div>
+</div>
 
 <button class="fab" id="fab" onclick="openEditor()" title="New entry">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -349,11 +390,10 @@ nav svg{width:22px;height:22px}
 
 const API_BASE = 'http://127.0.0.1:8420';
 const TOKEN = () => localStorage.getItem('lifenote.token') || 'dev';
-const LS_DEVICE = 'lifenote.device';
 const LS_THEME  = 'lifenote.theme';
 const LS_ACCENT = 'lifenote.accent';
 const LS_FSIZE  = 'lifenote.fsize';
-function currentDeviceName(){ return localStorage.getItem(LS_DEVICE) || 'this-device'; }
+let DEVICE_NAME = 'android';
 
 let MOCK_MODE = false;
 
@@ -520,16 +560,16 @@ async function api(path, opts){
   opts = opts || {};
   opts.headers = Object.assign({ 'X-LifeNote-Token': TOKEN() }, opts.headers || {});
   if (!MOCK_MODE){
-    try{
-      return await fetch(API_BASE + path, opts);
-    }catch(err){
-      if (window.location.protocol === 'file:' ||
-          window.location.search.indexOf('mock=1') !== -1){
-        enterMockMode();
-      } else {
-        throw err;
+    let lastError;
+    for (let attempt = 0; attempt < 12; attempt++){
+      try{
+        return await fetch(API_BASE + path, opts);
+      }catch(error){
+        lastError = error;
+        await new Promise(function(resolve){ setTimeout(resolve, 150); });
       }
     }
+    throw lastError;
   }
   return Mock.handle(path, opts);
 }
@@ -598,7 +638,22 @@ const state = {
   saveInFlight: null
 };
 
-async function loadIndex(){
+async function hydrateMissingBodies(){
+  const ids = Array.from(state.entries).filter(function(pair){
+    const e = pair[1];
+    return (e.body === undefined || e.title === undefined) && !e.deleted;
+  }).map(function(pair){ return pair[0]; });
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(6, ids.length) }, async function(){
+    while (cursor < ids.length){
+      const id = ids[cursor++];
+      try{ await loadBody(id); }catch(_){}
+    }
+  });
+  await Promise.all(workers);
+}
+
+async function loadIndex(includeBodies){
   const r = await api('/api/index');
   const metas = await r.json();
   for (const m of metas){
@@ -607,12 +662,7 @@ async function loadIndex(){
       state.entries.set(m.id, Object.assign({}, known || {}, m));
     }
   }
-  for (const pair of Array.from(state.entries)){
-    const id = pair[0], e = pair[1];
-    if ((e.body === undefined || e.title === undefined) && !e.deleted){
-      try{ await loadBody(id); }catch(_){}
-    }
-  }
+  if (includeBodies !== false) await hydrateMissingBodies();
 }
 
 async function loadBody(id){
@@ -913,6 +963,11 @@ function closeEditor(){
 }
 
 function handleAndroidBack(){
+  if (document.getElementById('lockView').classList.contains('open')){
+    if (lockIsStartup && window.LifeNoteSecurity){ window.LifeNoteSecurity.exitApp(); }
+    else cancelLockAction();
+    return true;
+  }
   if (document.getElementById('historyView').classList.contains('open')){
     closeHistory();
     return true;
@@ -1034,7 +1089,7 @@ async function persistEditor(){
   } else {
     e = { id: isoId(new Date()) + '-' + String(Math.floor(Math.random()*900000) + 100000),
           created: nowIso, updated: nowIso,
-          device: currentDeviceName(), title: title, deleted: false, body: body };
+          device: DEVICE_NAME, title: title, deleted: false, body: body };
   }
 
   state.saveInFlight = (async function(){
@@ -1161,36 +1216,167 @@ function renderDayResults(){
 
 /* ---------- settings ---------- */
 function renderSettings(){
-  document.getElementById('deviceName').value = localStorage.getItem(LS_DEVICE) || '';
-}
-function saveDeviceName(){
-  const v = document.getElementById('deviceName').value.trim() || 'android';
-  localStorage.setItem(LS_DEVICE, v);
-  if (!MOCK_MODE) api('/api/settings', { method:'PUT', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ device:v }) }).catch(function(){ toast('Could not save device name'); });
-  toast('Device name saved');
+  const enabled = securityHasPassword();
+  document.getElementById('securityState').textContent = enabled
+    ? 'Password protection is on'
+    : 'Password protection is off';
+  document.getElementById('securityActions').innerHTML = enabled
+    ? '<button onclick="openLockAction(\'change\')">Change password</button><button onclick="openLockAction(\'remove\')">Remove lock</button>'
+    : '<button onclick="openLockAction(\'setup\')">Enable app lock</button>';
 }
 
 /* ---------- export / import ---------- */
 function doExport(){
-  if (MOCK_MODE || !window.LifeNoteFiles){ toast('Android opens a save location here'); return; }
+  if (MOCK_MODE || !window.LifeNoteFiles){ toast('Backup picker is available in the Android app'); return; }
+  document.getElementById('backupStatus').textContent = 'Choose where to save your backup…';
   window.LifeNoteFiles.exportJournal();
 }
 function doImport(mode){
   if (mode === 'replace' && !confirm('Replace every current entry with the selected backup? This cannot be undone unless you export first.')) return;
-  if (MOCK_MODE || !window.LifeNoteFiles){ toast(mode === 'replace' ? 'Replace backup selected' : 'Merge backup selected'); return; }
+  if (MOCK_MODE || !window.LifeNoteFiles){ toast('Backup picker is available in the Android app'); return; }
+  document.getElementById('backupStatus').textContent = 'Choose a LifeNote backup…';
   window.LifeNoteFiles.importJournal(mode);
 }
 async function onNativeArchiveResult(success, message, reload){
-  if (success && reload){
-    state.entries.clear();
-    await loadIndex();
-    renderJournal();
-  }
+  document.getElementById('backupStatus').textContent = message;
   toast(message);
+  if (success && reload){
+    let refreshed = false;
+    for (let attempt = 0; attempt < 20 && !refreshed; attempt++){
+      try {
+        state.entries.clear();
+        await loadIndex(false);
+        renderJournal();
+        hydrateMissingBodies().then(renderJournal);
+        refreshed = true;
+      } catch (error) {
+        await new Promise(function(resolve){ setTimeout(resolve, 200); });
+      }
+    }
+    if (!refreshed){
+      const warning = message + '. Reopen LifeNote to refresh the journal.';
+      document.getElementById('backupStatus').textContent = warning;
+      toast(warning);
+    }
+  }
 }
 
+let resumeRefreshInFlight = false;
+async function onNativeResume(){
+  if (MOCK_MODE || resumeRefreshInFlight) return;
+  resumeRefreshInFlight = true;
+  try{
+    const cfg = await loadNativeConfig();
+    localStorage.setItem('lifenote.token', cfg.token);
+    DEVICE_NAME = cfg.device || 'android';
+    if (state.dirty) await saveNow();
+    if (!state.entries.size) {
+      await loadIndex(false);
+      renderJournal();
+      hydrateMissingBodies().then(renderJournal);
+    }
+  }catch(_){} finally {
+    resumeRefreshInFlight = false;
+  }
+}
+
+/* ---------- optional app lock ---------- */
+let lockMode = 'unlock';
+let lockIsStartup = false;
+let mockPassword = '';
+function securityHasPassword(){
+  return MOCK_MODE ? !!mockPassword : !!(window.LifeNoteSecurity && window.LifeNoteSecurity.hasPassword());
+}
+function securityVerify(value){
+  return MOCK_MODE ? value === mockPassword : window.LifeNoteSecurity.verifyPassword(value);
+}
+function securitySet(current, replacement){
+  if (MOCK_MODE){
+    if (mockPassword && current !== mockPassword) return 'Current password is incorrect';
+    mockPassword = replacement;
+    return 'ok';
+  }
+  return window.LifeNoteSecurity.setPassword(current, replacement);
+}
+function securityRemove(current){
+  if (MOCK_MODE){ if (current !== mockPassword) return false; mockPassword = ''; return true; }
+  return window.LifeNoteSecurity.removePassword(current);
+}
+function openLockAction(mode, startup){
+  lockMode = mode;
+  lockIsStartup = !!startup;
+  const titles = { unlock:'Unlock LifeNote', setup:'Enable app lock', change:'Change password', remove:'Remove app lock' };
+  const messages = {
+    unlock:'Enter your password to open your journal.',
+    setup:'Create a password with at least 4 characters.',
+    change:'Confirm your current password, then choose a new one.',
+    remove:'Enter your current password to remove the app lock.'
+  };
+  document.getElementById('lockTitle').textContent = titles[mode];
+  document.getElementById('lockMessage').textContent = messages[mode];
+  document.getElementById('lockSubmit').textContent = mode === 'unlock' ? 'Unlock' : mode === 'remove' ? 'Remove' : 'Save';
+  document.getElementById('lockCancel').style.display = lockIsStartup ? 'none' : '';
+  document.getElementById('currentPassword').style.display = mode === 'setup' ? 'none' : '';
+  document.getElementById('newPassword').style.display = (mode === 'setup' || mode === 'change') ? '' : 'none';
+  document.getElementById('confirmPassword').style.display = (mode === 'setup' || mode === 'change') ? '' : 'none';
+  ['currentPassword','newPassword','confirmPassword'].forEach(function(id){ document.getElementById(id).value = ''; });
+  document.getElementById('lockError').textContent = '';
+  document.getElementById('lockView').classList.add('open');
+  setTimeout(function(){
+    document.getElementById(mode === 'setup' ? 'newPassword' : 'currentPassword').focus();
+  }, 50);
+}
+function cancelLockAction(){
+  if (lockIsStartup) return;
+  document.getElementById('lockView').classList.remove('open');
+}
+function lockError(message){ document.getElementById('lockError').textContent = message; }
+function submitLockAction(){
+  const current = document.getElementById('currentPassword').value;
+  const replacement = document.getElementById('newPassword').value;
+  const confirmation = document.getElementById('confirmPassword').value;
+  if (lockMode === 'unlock'){
+    if (!securityVerify(current)){ lockError('Incorrect password'); return; }
+    document.getElementById('lockView').classList.remove('open');
+    document.body.classList.remove('booting');
+    return;
+  }
+  if (lockMode === 'remove'){
+    if (!securityRemove(current)){ lockError('Current password is incorrect'); return; }
+    document.getElementById('lockView').classList.remove('open');
+    renderSettings();
+    toast('App lock removed');
+    return;
+  }
+  if (replacement.length < 4){ lockError('Use at least 4 characters'); return; }
+  if (replacement !== confirmation){ lockError('Passwords do not match'); return; }
+  const result = securitySet(current, replacement);
+  if (result !== 'ok'){ lockError(result); return; }
+  document.getElementById('lockView').classList.remove('open');
+  renderSettings();
+  toast(lockMode === 'setup' ? 'App lock enabled' : 'Password changed');
+}
+['currentPassword','newPassword','confirmPassword'].forEach(function(id){
+  document.getElementById(id).addEventListener('keydown', function(event){
+    if (event.key === 'Enter') submitLockAction();
+  });
+});
+
 /* ---------- boot ---------- */
+async function loadNativeConfig(){
+  let lastError;
+  for (let attempt = 0; attempt < 12; attempt++){
+    try{
+      const response = await fetch(API_BASE + '/api/config');
+      if (!response.ok) throw new Error('config ' + response.status);
+      return response.json();
+    }catch(error){
+      lastError = error;
+      await new Promise(function(resolve){ setTimeout(resolve, 150); });
+    }
+  }
+  throw lastError;
+}
 (async function boot(){
   buildSwatches();
   applyAppearance();
@@ -1200,28 +1386,30 @@ async function onNativeArchiveResult(success, message, reload){
         .addEventListener('change', function(){ applyAppearance(); });
     }catch(_){}
   }
-  if (window.location.protocol === 'file:' ||
-      window.location.search.indexOf('mock=1') !== -1){
+  if (window.location.search.indexOf('mock=1') !== -1){
     enterMockMode();
   }
   try{
     if (!MOCK_MODE){
-      const cfg = await fetch(API_BASE + '/api/config').then(function(r){
-        if (!r.ok) throw new Error('config ' + r.status);
-        return r.json();
-      });
-       localStorage.setItem('lifenote.token', cfg.token);
-        if (cfg.device && !localStorage.getItem(LS_DEVICE)){
-        localStorage.setItem(LS_DEVICE, cfg.device);
-        }
-      document.getElementById('deviceName').value = localStorage.getItem(LS_DEVICE) || '';
+      const cfg = await loadNativeConfig();
+      localStorage.setItem('lifenote.token', cfg.token);
+      DEVICE_NAME = cfg.device || 'android';
+    } else {
+      DEVICE_NAME = 'browser-mock';
     }
-    await loadIndex();
+    await loadIndex(false);
   }catch(err){
-    enterMockMode();
-    await loadIndex();
+    state.entries.clear();
+    toast('Local journal unavailable — restart LifeNote');
   }
   renderJournal();
+  renderSettings();
+  if (securityHasPassword()){
+    openLockAction('unlock', true);
+  } else {
+    document.body.classList.remove('booting');
+  }
+  hydrateMissingBodies().then(renderJournal);
 })();
 </script>
 </body>

@@ -47,7 +47,7 @@ She said something I want to remember: "slow is also a direction."
 | `id` | ✅ | Permanent entry identity | `<YYYYMMDDTHHmmss>-<6 digits>`; immutable; never reused |
 | `created` | ✅ | Write instant | ISO-8601 with timezone offset |
 | `updated` | ✅ | Last-edit instant; **sole LWW arbiter** | ISO-8601 with offset; bumped on every mutation including deletes |
-| `device` | ✅ | Origin of current version | Freeform label from Settings; aids human conflict review |
+| `device` | ✅ | Origin of current version | Internal Android model label retained for backup conflict review; not user-facing |
 | `title` | ⬜ optional | Display title in lists/reader | ≤ 60 chars, single line; omitted when empty |
 | `deleted` | ✅ | Tombstone flag | `true` → hidden from all views; purged locally 30 days after `updated` |
 
@@ -104,6 +104,6 @@ journal-2026-08-23.zip
     └── …
 ```
 
-Import accepts exactly this shape. **Merge** retains local-only entries, adds imported-only entries, keeps the version with the newer `updated` timestamp when IDs collide, and incorporates valid history for IDs that exist after merging. **Replace** validates and stages the complete archive, then atomically substitutes the journal directory including history. Both modes cap each history at 20 and preserve malformed top-level `.md` files rather than dropping them. Settings and the lock PIN are not part of the archive.
+Import accepts exactly this shape. **Merge** retains local-only entries, adds imported-only entries, keeps the version with the newer `updated` timestamp when IDs collide, and incorporates valid history for IDs that exist after merging. **Replace** validates and stages the complete archive, then atomically substitutes the journal directory including history. Both modes cap each history at 20 and preserve malformed top-level `.md` files rather than dropping them. Appearance and the optional app-lock password are not part of the archive.
 
 Internal format ≡ export format: there is no conversion layer, therefore no conversion layer can break.

@@ -26,16 +26,18 @@ LifeNote/
 │       │   ├── index.html           ← ENTIRE UI: 5 views + CSS + JS + mock-mode adapter
 │       │   └── fonts/               ← bundled Chubbo Bold + Supreme Regular WOFF2 only
 │       └── java/com/lifenote/
-│           ├── MainActivity.kt      ← PIN gate, WebView host, server lifecycle
+│           ├── MainActivity.kt      ← WebView host, app-lock/archive bridges, server lifecycle
 │           ├── HttpServer.kt        ← hand-written HTTP/1.1 on ServerSocket, port 8420
 │           ├── JournalStore.kt      ← CRUD + front-matter parsing over journal/*.md
 │           ├── HistoryStore.kt      ← bounded, atomic per-entry revision snapshots
 │           ├── ArchiveManager.kt    ← zip export + staged merge/replace import
-│           └── Settings.kt          ← local API token, device name, lock PIN
+│           └── Settings.kt          ← local API token, internal device label, optional lock password
 │
 ├── release/
-│   ├── LifeNote-v1.0.0-debug.apk    ← installable development build
-│   └── LifeNote-v1.0.0.apk          ← release-signed artifact after keystore setup
+│   ├── LifeNote-v1.0.2-debug.apk    ← installable development build
+│   ├── LifeNote-v1.0.2.apk          ← current release-signed artifact after keystore setup
+│   ├── LifeNote-v1.0.1.apk          ← retained prior patch release for rollback
+│   └── LifeNote-v1.0.0.apk          ← retained first release for rollback
 │
 └── export/                          ← example export zip for format reference
 ```
@@ -44,13 +46,13 @@ LifeNote/
 
 | File | ~Lines | Sole responsibility |
 |---|---|---|
-| `index.html` | ~1225 | All six views, autosave, Markdown renderer, mock adapter |
-| `MainActivity.kt` | ~205 | Shell lifecycle, lock gate, document picker, WebView bridges |
+| `index.html` | ~1365 | All views, autosave, custom app lock, Markdown renderer, explicit mock adapter |
+| `MainActivity.kt` | ~205 | Shell lifecycle, document picker, app-lock/archive WebView bridges |
 | `HttpServer.kt` | ~245 | Loopback TCP accept, HTTP parse, token auth, entry/history routes |
 | `JournalStore.kt` | ~240 | File CRUD, atomic writes, merge/replace operations, tombstone purge |
 | `ArchiveManager.kt` | ~145 | Zip export, validation, staged import, imported-history pruning |
 | `HistoryStore.kt` | ~75 | Deduplicated atomic snapshots and newest-20 retention |
-| `Settings.kt` | ~65 | Install-local API token, PIN verification value, device name |
+| `Settings.kt` | ~65 | Install-local API token, password verification value, internal device label |
 
 Total first-party code: **~2200 lines.** Third-party runtime dependencies: **0.**
 

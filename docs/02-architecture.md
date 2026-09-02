@@ -11,7 +11,7 @@ One APK, six components, one storage format, and no remote system.
 │   │        MainActivity          │   │  Embedded HTTP Server │ │
 │   │  (Kotlin, native shell)      │   │     port 8420         │ │
 │   │                              │   │                       │ │
-│   │  PIN gate → WebView ─────────┼──►│ GET  /api/config      │ │
+│   │  WebView + optional lock ─────┼──►│ GET  /api/config      │ │
 │   │                              │   │ GET  /api/index       │ │
 │   └─────────────────────────────┘   │ GET  /api/entries/{id}│ │
 │                                     │ PUT  /api/entries/{id}│ │
@@ -37,13 +37,15 @@ One APK, six components, one storage format, and no remote system.
 
 | Responsibility | Rule |
 |---|---|
-| Server lifecycle | Starts HttpServer in `onResume`, stops it in `onPause`. The server never runs while the app is backgrounded |
-| PIN gate | Renders a native lock dialog before WebView or server startup; unlocks via a SHA-256 verification value stored in Settings |
-| WebView | Loads `file:///android_asset/index.html`; JavaScript enabled; DOM storage ON (settings persist via localStorage); JS alert/confirm/prompt bridged to native dialogs (WebView blocks them by default); no external origins except `127.0.0.1:8420` |
-| Document picker | Bridges export, merge import, and replace import to Android's Storage Access Framework; backup operations run only while the activity is open |
+| Server lifecycle | Starts HttpServer in `onResume`, stops it in `onPause`, and restarts it before processing a document-picker result. Resume then signals the WebView to refresh an empty journal or retry a dirty save; local API calls retry brief restart races. The server never runs while the app is backgrounded |
+| Optional app lock | Starts unlocked when no password exists. When enabled, the WebView initially hides journal UI behind a custom lock screen and verifies through the narrow `LifeNoteSecurity` bridge |
+| WebView | Loads the packaged `index.html` from `http://127.0.0.1:8420/`, making UI and API same-origin; JavaScript enabled; DOM storage ON; JS alert/confirm bridged to native dialogs; no external origins |
+| Document picker | Bridges export, merge import, and replace import to Android's Storage Access Framework; import accepts provider-specific MIME labels, validates content internally, reports picker/result status through native Android messages, and retries the post-import UI refresh while the local API resumes |
 | Back behavior | Back from editor flushes pending autosave before closing; Back closes History, Reader, and Editor overlays in order |
 
 ### UI — `app/src/main/assets/index.html` (single file: HTML + CSS + JS)
+
+Startup renders the journal timeline from index metadata first, then hydrates missing entry bodies with at most six concurrent loopback reads. Opening an entry still fetches its body on demand, so a large journal does not hold the whole interface behind a blank loading state.
 
 Owns all pixels and interactions. Contains six views:
 
@@ -54,11 +56,13 @@ Owns all pixels and interactions. Contains six views:
 | Calendar | Month grid, entry-day markers, day drill-down | F5 |
 | Reader | Rendered Markdown view of one entry | F7 |
 | History | Newest 20 prior versions with explicit restore | F9 |
-| Settings | Appearance (theme/accent/text size), device name, export, merge import, replace import | D2–D4 |
+| Settings | Appearance, optional app-lock controls, export, merge import, replace import, version | P1, D2–D4 |
 
-**Mock mode contract:** when opened with `?mock=1` (or when `fetch` to the local API fails), the UI runs against an in-memory fake dataset. This enables browser-only development with zero Android tooling.
+**Mock mode contract:** only an explicit `?mock=1` URL enables the in-memory fake dataset. Production startup and API failures never fall back to demo content; the UI reports local-journal unavailability instead.
 
-**Communication rule:** the UI performs no direct file access and no remote networking. Entry changes round-trip through Kotlin at `http://127.0.0.1:8420/api/*`; Android's document picker is reached through the narrow `LifeNoteFiles` JavaScript bridge.
+**Communication rule:** the UI performs no direct file access and no remote networking. Entry changes round-trip through Kotlin at `http://127.0.0.1:8420/api/*`; Android's document picker and optional app lock are reached through the narrow `LifeNoteFiles` and `LifeNoteSecurity` bridges.
+
+Serving both UI and API from the same loopback origin avoids WebView CORS/private-network preflights. The server still emits defensive CORS and private-network headers without exposing the listener beyond loopback.
 
 ### JournalStore — `JournalStore.kt`
 
@@ -66,7 +70,7 @@ CRUD over the journal folder. Parses/serializes front matter per doc 06. **Never
 
 ### HttpServer — `HttpServer.kt`
 
-Hand-written HTTP/1.1 listener on Java `ServerSocket`, zero dependencies. It binds only to `127.0.0.1:8420`, serves the local WebView, requires the install-local token on API routes, and closes connections on malformed input.
+Hand-written HTTP/1.1 listener on Java `ServerSocket`, zero dependencies. It binds explicitly to IPv4 `127.0.0.1:8420` rather than Android's device-dependent generic loopback address, serves the local WebView, requires the install-local token on API routes, and closes connections on malformed input.
 
 ### ArchiveManager — `ArchiveManager.kt`
 

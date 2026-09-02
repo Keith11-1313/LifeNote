@@ -134,6 +134,10 @@ class JournalStore(internal val directory: File) {
     @Synchronized
     fun mergeFrom(staging: File, total: Int): ArchiveManager.ImportResult {
         var imported = 0
+        val existingById = dir.listFiles { file -> file.isFile && file.name.endsWith(".md") }
+            ?.mapNotNull { file ->
+                parse(file.readText(Charsets.UTF_8))?.let { entry -> entry.meta.id to Pair(file, entry) }
+            }?.toMap()?.toMutableMap() ?: mutableMapOf()
         staging.listFiles { file -> file.isFile && file.name.endsWith(".md") }?.forEach { file ->
             val raw = file.readText(Charsets.UTF_8)
             val entry = parse(raw)
@@ -141,10 +145,13 @@ class JournalStore(internal val directory: File) {
                 val target = uniqueMalformedFile(file.name, raw)
                 if (target != null) { atomicWrite(target, raw); imported++ }
             } else {
-                val existing = fileForId(entry.meta.id)
-                val existingEntry = existing?.let { parse(it.readText(Charsets.UTF_8)) }
+                val existing = existingById[entry.meta.id]
+                val existingFile = existing?.first
+                val existingEntry = existing?.second
                 if (existingEntry == null || isNewer(entry.meta.updated, existingEntry.meta.updated)) {
-                    atomicWrite(existing ?: fileFor(entry), raw)
+                    val target = existingFile ?: fileFor(entry)
+                    atomicWrite(target, raw)
+                    existingById[entry.meta.id] = Pair(target, entry)
                     imported++
                 }
             }

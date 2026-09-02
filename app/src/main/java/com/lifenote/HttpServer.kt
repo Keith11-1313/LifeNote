@@ -6,7 +6,6 @@ import java.net.InetSocketAddress
 import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
-import org.json.JSONObject
 
 /**
  * Hand-rolled HTTP/1.1 listener on port 8420 (doc 05).
@@ -27,7 +26,7 @@ class HttpServer(
     fun start() {
         if (running) return
         running = true
-        serverSocket = ServerSocket(port, 50, InetAddress.getLoopbackAddress())
+        serverSocket = ServerSocket(port, 50, InetAddress.getByName("127.0.0.1"))
         acceptThread = Thread {
             while (running) {
                 try {
@@ -70,6 +69,7 @@ class HttpServer(
                     append("Access-Control-Allow-Origin: *\r\n")
                     append("Access-Control-Allow-Methods: GET, PUT, POST, OPTIONS\r\n")
                     append("Access-Control-Allow-Headers: X-LifeNote-Token, Content-Type\r\n")
+                    append("Access-Control-Allow-Private-Network: true\r\n")
                     append("Connection: close\r\n\r\n")
                 }
                 s.getOutputStream().write(head.toByteArray(Charsets.UTF_8))
@@ -179,13 +179,6 @@ class HttpServer(
                     is JournalStore.WriteResult.Invalid ->
                         json(400, "{\"error\":\"${jEsc(r.reason)}\"}")
                 }
-            }
-
-            req.method == "PUT" && req.path == "/api/settings" -> {
-                val body = runCatching { JSONObject(req.body) }.getOrNull()
-                    ?: return Triple(400, "text/plain", "invalid settings")
-                body.optString("device").trim().takeIf { it.isNotEmpty() }?.let { settings.deviceName = it }
-                json(200, "{\"saved\":true}")
             }
 
             req.path.startsWith("/api/history/") -> historyRoute(req)

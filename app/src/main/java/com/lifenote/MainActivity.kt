@@ -6,12 +6,10 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.webkit.JavascriptInterface
-import android.webkit.JsPromptResult
 import android.webkit.JsResult
 import android.webkit.WebChromeClient
 import android.webkit.WebView
-import android.widget.EditText
-import android.text.InputType
+import android.widget.Toast
 import org.json.JSONObject
 import java.time.LocalDate
 
@@ -24,7 +22,7 @@ class MainActivity : Activity() {
     private lateinit var history: HistoryStore
     private lateinit var archiveManager: ArchiveManager
     private var server: HttpServer? = null
-    private var unlocked = false
+    private var opened = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,43 +31,17 @@ class MainActivity : Activity() {
         history = HistoryStore(java.io.File(filesDir, "journal/.history"), store)
         archiveManager = ArchiveManager(filesDir, store)
 
-        showLockScreen()
-    }
-
-    private fun showLockScreen() {
-        val input = EditText(this).apply {
-            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
-            hint = if (settings.hasLockPin) "Enter PIN" else "Choose a PIN (4+ digits)"
-        }
-        AlertDialog.Builder(this)
-            .setTitle(if (settings.hasLockPin) "LifeNote is locked" else "Protect LifeNote")
-            .setMessage(if (settings.hasLockPin) "Enter your PIN to open your journal." else "Choose a PIN before your journal is shown.")
-            .setView(input)
-            .setCancelable(false)
-            .setPositiveButton("Continue", null)
-            .show().also { dialog ->
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                    val pin = input.text.toString()
-                    if (pin.length < 4) { input.error = "Use at least 4 digits"; return@setOnClickListener }
-                    if (!settings.hasLockPin) {
-                        settings.setLockPin(pin)
-                        openJournal()
-                        dialog.dismiss()
-                    } else if (settings.matchesLockPin(pin)) {
-                        openJournal()
-                        dialog.dismiss()
-                    } else input.error = "Incorrect PIN"
-                }
-            }
+        openJournal()
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun openJournal() {
-        unlocked = true
+        opened = true
         webView = WebView(this)
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
         webView.addJavascriptInterface(FilesBridge(), "LifeNoteFiles")
+        webView.addJavascriptInterface(SecurityBridge(), "LifeNoteSecurity")
         webView.webChromeClient = object : WebChromeClient() {
             override fun onJsAlert(
                 view: WebView?, url: String?, message: String?, result: JsResult?
@@ -94,30 +66,23 @@ class MainActivity : Activity() {
                 return true
             }
 
-            override fun onJsPrompt(
-                view: WebView?, url: String?, message: String?,
-                defaultValue: String?, result: JsPromptResult?
-            ): Boolean {
-                val input = EditText(this@MainActivity)
-                input.setText(defaultValue ?: "")
-                AlertDialog.Builder(this@MainActivity)
-                    .setTitle(message ?: "LifeNote")
-                    .setView(input)
-                    .setPositiveButton("OK") { _, _ -> result?.confirm(input.text.toString()) }
-                    .setNegativeButton("Cancel") { _, _ -> result?.cancel() }
-                    .setOnCancelListener { result?.cancel() }
-                    .show()
-                return true
-            }
         }
         setContentView(webView)
         startServer()
-        webView.loadUrl("file:///android_asset/index.html")
+        webView.loadUrl("http://127.0.0.1:8420/")
     }
 
     override fun onResume() {
         super.onResume()
-        if (unlocked) startServer()
+        if (opened) {
+            startServer()
+            webView.post {
+                webView.evaluateJavascript(
+                    "if (typeof onNativeResume === 'function') onNativeResume();",
+                    null
+                )
+            }
+        }
     }
 
     private fun startServer() {
@@ -135,7 +100,7 @@ class MainActivity : Activity() {
                 type = "application/zip"
                 putExtra(Intent.EXTRA_TITLE, "LifeNote-${LocalDate.now()}.zip")
             }
-            startActivityForResult(intent, REQUEST_EXPORT)
+            openDocumentPicker(intent, REQUEST_EXPORT, "Choose where to save the backup")
         }
 
         @JavascriptInterface
@@ -143,16 +108,57 @@ class MainActivity : Activity() {
             val request = if (mode == "replace") REQUEST_IMPORT_REPLACE else REQUEST_IMPORT_MERGE
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
-                type = "application/zip"
+                type = "*/*"
             }
-            startActivityForResult(intent, request)
+            openDocumentPicker(intent, request, "Choose a LifeNote backup")
         }
+    }
+
+    private fun openDocumentPicker(intent: Intent, request: Int, message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        runCatching { startActivityForResult(intent, request) }
+            .onFailure { notifyArchiveResult(false, "Android could not open the file picker", false) }
+    }
+
+    private inner class SecurityBridge {
+        @JavascriptInterface
+        fun hasPassword(): Boolean = settings.hasLockPin
+
+        @JavascriptInterface
+        fun verifyPassword(password: String): Boolean = settings.matchesLockPin(password)
+
+        @JavascriptInterface
+        fun setPassword(current: String, replacement: String): String {
+            if (replacement.length < 4) return "Use at least 4 characters"
+            if (settings.hasLockPin && !settings.matchesLockPin(current)) return "Current password is incorrect"
+            settings.setLockPin(replacement)
+            return "ok"
+        }
+
+        @JavascriptInterface
+        fun removePassword(current: String): Boolean {
+            if (!settings.hasLockPin || !settings.matchesLockPin(current)) return false
+            settings.removeLockPin()
+            return true
+        }
+
+        @JavascriptInterface
+        fun exitApp() = runOnUiThread { moveTaskToBack(true) }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode != RESULT_OK) return
-        val uri = data?.data ?: return
+        if (opened) startServer()
+        if (resultCode != RESULT_OK) {
+            if (requestCode in REQUEST_EXPORT..REQUEST_IMPORT_REPLACE) {
+                notifyArchiveResult(false, "Backup action canceled", false)
+            }
+            return
+        }
+        val uri = data?.data ?: run {
+            notifyArchiveResult(false, "Android did not return a backup file", false)
+            return
+        }
         Thread {
             runCatching {
                 when (requestCode) {
@@ -177,6 +183,7 @@ class MainActivity : Activity() {
     }
 
     private fun notifyArchiveResult(success: Boolean, message: String, reload: Boolean) = runOnUiThread {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
         val script = "window.onNativeArchiveResult(${success},${JSONObject.quote(message)},${reload});"
         webView.evaluateJavascript(script, null)
     }
@@ -188,8 +195,7 @@ class MainActivity : Activity() {
     }
 
     override fun onBackPressed() {
-        if (!unlocked) { moveTaskToBack(true); return }
-        // UI overlays (editor/reader) consume back via JS; otherwise default exit.
+        if (!opened) { moveTaskToBack(true); return }
         webView.evaluateJavascript(
             "(typeof handleAndroidBack === 'function') ? String(handleAndroidBack()) : 'false';"
         ) { result ->

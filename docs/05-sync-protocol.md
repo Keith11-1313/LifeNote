@@ -20,11 +20,19 @@ LifeNote-2026-09-02.zip
     └── …
 ```
 
-The export excludes the lock PIN, appearance preferences, and device label. An empty journal produces a valid zip containing no entries.
+The export excludes the optional app-lock password and appearance preferences. An empty journal produces a valid zip containing no entries. The Settings screen reports picker, success, cancellation, and failure status.
 
 ## Merge import
 
 Settings → **Merge a backup** retains the current journal and incorporates the selected backup:
+
+The Android import picker accepts any visible file because document providers assign inconsistent MIME types to zip archives. LifeNote does not trust the picker label: it validates the zip signature, paths, file count, expanded size, and entry structure before changing the journal.
+
+Merge indexes the existing journal once before comparing imported IDs, avoiding repeated full-directory scans. After either import mode completes, the UI reports the result immediately and retries its local API refresh for up to four seconds so a brief activity/server lifecycle transition cannot leave stale content on screen.
+
+All UI calls to the loopback API retry transient connection failures for up to 1.8 seconds. When Android resumes LifeNote, the native shell starts the server first and then asks the WebView to refresh an empty index or retry an unsaved edit.
+
+Initial load fetches `/api/index` before revealing the timeline. Entry bodies then hydrate through a six-request worker pool; reader access remains on-demand. This keeps startup responsive without creating one thread per archived entry.
 
 | Situation | Result |
 |---|---|
@@ -47,7 +55,7 @@ Settings → **Replace this journal** first shows a destructive confirmation. Af
 4. restores the original directory if the second rename fails;
 5. removes the old directory only after replacement succeeds.
 
-Replace affects journal entries and their included revision history. The lock PIN, theme, accent, text size, and device label remain unchanged.
+Replace affects journal entries and their included revision history. The app-lock password, theme, accent, and text size remain unchanged.
 
 ## Import safeguards
 
@@ -59,7 +67,7 @@ Replace affects journal entries and their included revision history. The lock PI
 
 ## Local API reference
 
-All `/api/*` requests require `X-LifeNote-Token`. The server accepts connections only from loopback.
+All `/api/*` requests require `X-LifeNote-Token`. The server accepts connections only from loopback. UI and API share the same `http://127.0.0.1:8420` origin, so authenticated reads and writes do not depend on WebView cross-origin/private-network preflights. Defensive `OPTIONS` responses still include the allowed methods, token/content headers, and private-network allowance.
 
 | Method | Path | Body | Response |
 |---|---|---|---|
@@ -71,7 +79,6 @@ All `/api/*` requests require `X-LifeNote-Token`. The server accepts connections
 | `GET` | `/api/history/{id}/{key}` | — | full revision Markdown |
 | `POST` | `/api/history/{id}/{key}/restore` | — | snapshots current content, then restores the revision with a fresh `updated` |
 | `GET` | `/api/config` | — | local token and device label |
-| `PUT` | `/api/settings` | `{"device":"..."}` | saves the device label |
 | `GET` | `/` | — | debug UI |
 | `OPTIONS` | any | — | CORS preflight response |
 
