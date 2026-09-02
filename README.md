@@ -42,4 +42,5 @@ One sideloaded APK contains the journal UI and stores every entry as a plain `.m
 | Local transport | HTTP/1.1 loopback on `127.0.0.1:8420`; never exposed to the LAN |
 | Data format | One UTF-8 Markdown file per entry (internal ≡ export format) |
 | Install method | Sideloaded APK, no Play Store |
+| Final release | [LifeNote v1.0.2](https://github.com/Keith11-1313/LifeNote/releases/tag/v1.0.2) |
 | Recurring cost | Zero, by design |

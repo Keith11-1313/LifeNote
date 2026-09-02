@@ -79,11 +79,11 @@ gh release create v<version> release\LifeNote-v<version>.apk `
 git push origin main
 ```
 
-GitHub Releases double as the off-device APK backup: every shipped build remains downloadable at `github.com/Keith11-1313/LifeNote/releases` indefinitely. Keystore files are never attached to releases and never committed (`*.jks` is gitignored) — doc 08's manual backup policy still governs them.
+GitHub Releases are the canonical off-device APK shelf: every shipped build remains downloadable at `github.com/Keith11-1313/LifeNote/releases` indefinitely. The local `release/` folder is generated staging; APKs and private journal zips there are gitignored. Keystore files are never attached to releases and never committed (`*.jks` is gitignored) — doc 08's manual backup policy still governs them.
 
 Release builds run R8 optimization and resource shrinking. Set `LIFENOTE_KEYSTORE_PASSWORD` in the current PowerShell session; Gradle signs only when both that value and `app\keystore.jks` exist. Never place the password in source, docs, Gradle properties, or shell history.
 
-Rollback policy: previous APKs stay in `release/` AND on GitHub Releases forever. Reinstalling an older APK over a newer one is supported (same keystore); data files are forward-compatible by parser contract.
+Rollback policy: previous APKs stay on GitHub Releases; local copies may also remain in the gitignored `release/` folder. Reinstalling an older APK over a newer one is supported (same keystore); data files are forward-compatible by parser contract.
 
 ## Environment facts (this PC)
 

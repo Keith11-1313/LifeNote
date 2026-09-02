@@ -34,10 +34,8 @@ LifeNote/
 │           └── Settings.kt          ← local API token, internal device label, optional lock password
 │
 ├── release/
-│   ├── LifeNote-v1.0.2-debug.apk    ← installable development build
-│   ├── LifeNote-v1.0.2.apk          ← current release-signed artifact after keystore setup
-│   ├── LifeNote-v1.0.1.apk          ← retained prior patch release for rollback
-│   └── LifeNote-v1.0.0.apk          ← retained first release for rollback
+│   ├── LifeNote-v1.0.0*.apk         ← legacy tracked first-release artifacts
+│   └── LifeNote-v<version>[-debug].apk ← generated, gitignored local builds; signed releases publish on GitHub
 │
 └── export/                          ← example export zip for format reference
 ```
@@ -79,7 +77,7 @@ index.html ──fetch()──► 127.0.0.1:8420   (own app's server only)
 |---|---|
 | `gradle/wrapper/` | Pins Gradle version; a rebuild in 2031 produces identical output |
 | `keystore.jks` in-repo location | Single known path; doc 07 generates it here; doc 08 mandates its backup |
-| `release/` folder | Phones receive APK copies from here; versioned filenames prevent "which file?" confusion |
+| `release/` folder | Local build staging only; generated APKs and private journal zips are gitignored, while shipped APKs live in GitHub Releases |
 | `export/` sample | Locks the export contract with a concrete artifact |
 | `design/font-sources/` | Keeps original font packages out of the APK while preserving their source files |
 | `app/proguard-rules.pro` | Keeps the annotated WebView bridge stable while R8 removes unreachable release code |

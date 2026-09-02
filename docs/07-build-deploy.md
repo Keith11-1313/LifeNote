@@ -53,6 +53,8 @@ Copy-Item app\build\outputs\apk\debug\app-debug.apk release\LifeNote-v1.0.2-debu
 
 The debug APK is suitable for personal device testing and is signed by the local Android debug key. Future release builds use the backed-up private keystore from Step 1.
 
+The final signed v1.0.2 APK is published at [github.com/Keith11-1313/LifeNote/releases/tag/v1.0.2](https://github.com/Keith11-1313/LifeNote/releases/tag/v1.0.2). Its SHA-256 is `6A151C4117F264B3580B1C5003DBFBDCB136B802EADDE542D75EC791063CACE8`.
+
 ## Step 3 — Get the APK onto the phones
 
 Any of these works — the APK is just a file:
