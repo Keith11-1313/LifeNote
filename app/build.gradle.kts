@@ -15,10 +15,27 @@ android {
         versionName = "1.0.0"
     }
 
+    val releasePassword = providers.environmentVariable("LIFENOTE_KEYSTORE_PASSWORD").orNull
+    signingConfigs {
+        if (file("keystore.jks").isFile && releasePassword != null) {
+            create("lifenoteRelease") {
+                storeFile = file("keystore.jks")
+                storePassword = releasePassword
+                keyAlias = "lifenote"
+                keyPassword = releasePassword
+            }
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
-            // signingConfig wired in doc 07 when keystore.jks is created
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfigs.findByName("lifenoteRelease")?.let { signingConfig = it }
         }
     }
 

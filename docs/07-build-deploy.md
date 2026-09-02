@@ -1,6 +1,6 @@
 # 07 — Build & Deploy
 
-From source code on the PC to a working journal on both phones. Do this once; repeat only when a new version exists.
+From source code on the PC to a working journal on an Android phone. Do this once; repeat only when a new version exists.
 
 ## Prerequisites
 
@@ -26,8 +26,11 @@ Android requires every APK to be signed. The keystore is the private key that sa
 
 ```powershell
 cd C:\Users\Jerald\Desktop\LifeNote
+$env:LIFENOTE_KEYSTORE_PASSWORD = '<the-password-from-step-1>'
 .\gradlew assembleRelease
 ```
+
+The release build runs R8 code optimization and resource shrinking. The password stays in the current terminal environment and is never written into the repository.
 
 First run downloads Gradle itself (~2 min). Output:
 
@@ -38,8 +41,17 @@ app\build\outputs\apk\release\app-release.apk
 Copy/rename it into the repo root for safekeeping:
 
 ```powershell
-Copy-Item app\build\outputs\apk\release\app-release.apk release\LifeNote-v1.0.apk
+Copy-Item app\build\outputs\apk\release\app-release.apk release\LifeNote-v1.0.0.apk
 ```
+
+Before the private release keystore exists, an installable debug build is available with:
+
+```powershell
+.\gradlew assembleDebug
+Copy-Item app\build\outputs\apk\debug\app-debug.apk release\LifeNote-v1.0.0-debug.apk
+```
+
+The debug APK is suitable for personal device testing and is signed by the local Android debug key. Future release builds use the backed-up private keystore from Step 1.
 
 ## Step 3 — Get the APK onto the phones
 
@@ -53,32 +65,32 @@ Any of these works — the APK is just a file:
 
 ## Step 4 — Install on each phone (once per phone)
 
-1. Open the **Files** app → Downloads → tap `LifeNote-v1.0.apk`
+1. Open the **Files** app → Downloads → tap `LifeNote-v1.0.0.apk` (or the provided `LifeNote-v1.0.0-debug.apk` test build)
 2. Android: *"For your security, this phone is not allowed to install unknown apps"* → tap **Settings** → allow installs **from that Files app only** (scoped permission — safe, standard sideload flow)
 3. Back → **Install** → done
 4. Repeat on phone 2
 
-## Step 5 — Pair the devices (once per device)
+## Step 5 — First launch
 
-1. Phone A: open LifeNote → set a lock PIN → Settings shows `This device: 192.168.1.34` and sync PIN
-2. Phone B: open LifeNote → Settings → add peer: A's IP + PIN
-3. Phone A Settings: add B's IP + PIN (each device keeps its own registry; repeat for phones C, D, …)
-4. Press **Sync** on either phone → expect "✓ synced"
-5. Optional but recommended: reserve each phone's IP in the router (DHCP reservation) so this never needs repeating
+1. Open LifeNote and choose a lock PIN of at least four digits
+2. Create a short test entry
+3. Settings → Export backup → save the zip somewhere outside the app
 
 ## Step 6 — Verify (the manual test checklist)
 
 | # | Test | Expected |
 |---|---|---|
 | 1 | Airplane mode ON, write entry on A | Saved locally, no errors |
-| 2 | WiFi back on, open B, sync | A's new entry appears on B |
-| 3 | Edit same entry on both, sync | Newer wins; `_conflict-` copy exists on loser's phone |
-| 4 | Delete entry on A, sync | Gone on B too (tombstone) |
-| 5 | Export on A → Import zip on B | Entries duplicated correctly |
-| 6 | Kill app, reopen | PIN gate → all data intact |
-| 7 | Search a word from an old entry | Found |
+| 2 | Type, pause for at least 900 ms, then leave the editor | Status reaches Saved and the entry remains after reopen |
+| 3 | Edit an entry twice, open History, restore the earlier version | Earlier text returns and the displaced current version remains in History |
+| 4 | Export backup | Chosen destination receives `journal/*.md` plus bounded `.history` files |
+| 5 | Add a second local entry, then merge the earlier backup | Second entry remains; imported entries/history are added or kept by `updated` |
+| 6 | Replace from the earlier backup after confirming | Current journal and its included history become exactly the backup |
+| 7 | Select a malformed or unrelated zip | Import fails without changing current entries |
+| 8 | Kill app, reopen | PIN gate → all data intact |
+| 9 | Search a word from an old entry | Found |
 
-All 7 passing = v1 shipped.
+All 9 passing = v1 shipped.
 
 ## Upgrading later (new version exists)
 

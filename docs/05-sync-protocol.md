@@ -1,109 +1,82 @@
-# 05 — Sync Protocol
+# 05 — Local API & Backup Restore
 
-How many phones become one journal. Design goal: **correct enough for one person with several devices**, simple enough to debug with your eyes.
+LifeNote does not sync over WiFi or connect to other devices. Moving journal data is an explicit user action through export-format zip files.
 
-## Topology
+## Local-only architecture
 
-N peers, fully symmetric, flat mesh. Every device may initiate a pairwise exchange with any other; neither side of a connection is privileged — each exchange has a temporary client (initiator) and server (receiver).
+The WebView uses a small HTTP server because it cannot access Android app-private files directly. The server binds only to `127.0.0.1:8420`; it is unreachable from the LAN. Every API request also carries an install-local token obtained from the loopback-only configuration route.
 
-**Convergence is transitive:** entries reach every paired device even if two phones never meet directly. If A↔B and B↔C have synced since the entry appeared, C has it. LWW decisions are based on absolute `updated` timestamps, so merge results are order-independent: any sync order converges to the same state.
+LifeNote initiates no outbound network connections. The manifest's internet permission and cleartext allowance exist solely for WebView-to-loopback HTTP on the same device.
 
-## Pairing (per device, once ever)
+## Export
 
-Each phone's Settings screen shows:
+Settings → **Export backup** opens Android's document picker. The user chooses the destination and filename. LifeNote writes every `.md` file byte-for-byte into:
 
-```
-┌──────────────────────────────┐
-│  This device: 192.168.1.34   │  ← shown big, for typing into any other phone
-│  Port:        8420           │
-│  PIN:         483-291        │  ← auto-generated at first launch
-└──────────────────────────────┘
-```
-
-On a new phone you enter: peer IP + that peer's PIN. Each device stores a **peer registry** (name + address + port), unbounded in size. Adding device C means: type A's or B's address into C once; C's first successful sync pulls the full journal.
-
-The PIN is per-device and shared only with devices you pair. It is the entire security model — appropriate for a home LAN where the threat is a nosy neighbor device, not a targeted attacker.
-
-## The sync dance (initiator's perspective)
-
-```
-Phone A (initiator)                    Phone B (receiver)
-      │                                        │
-      │ 1. POST /api/ping                      │
-      │──────── X-LifeNote-Token: 483-291 ────►│ verify PIN → 200 OK
-      │                                        │
-      │ 2. GET /api/index                      │
-      │───────────────────────────────────────►│
-      │◄──── [{id, updated, deleted}, ...] ────│  (metadata only, cheap)
-      │                                        │
-      │ 3. compare with local index            │
-      │    ├─ B newer → add to PULL list       │
-      │    ├─ A newer → add to PUSH list       │
-      │    └─ only on one side → transfer it   │
-      │                                        │
-      │ 4. GET /api/entries/{id}   (for pulls) │
-      │◄──── full entry file ──────────────────│
-      │                                        │
-      │ 5. PUT /api/entries/{id}   (for pushes)│
-      │──── full entry file ──────────────────►│ B applies if not newer (LWW)
-      │                                        │
-      │ 6. report "synced ✓ 3 pulled, 1 pushed"│
+```text
+LifeNote-2026-09-02.zip
+└── journal/
+    ├── 2026-08-01_090512_k3f9a1.md
+    ├── .history/20260801T090512-k3f9a1/1788350400000.md
+    └── …
 ```
 
-**Trigger:** app open (auto, silent) + manual sync button. On trigger, the SyncEngine iterates the entire peer registry and attempts each in turn; per-peer results are reported independently (`B ✓ 3 pulled, 1 pushed · C ✗ unreachable`). **Never** in background — no service, no battery drain, no OS fights.
+The export excludes the lock PIN, appearance preferences, and device label. An empty journal produces a valid zip containing no entries.
 
-## Conflict resolution: last-write-wins (LWW)
+## Merge import
 
-Every entry carries an `updated` timestamp. On collision, the newer timestamp wins, unconditionally.
+Settings → **Merge a backup** retains the current journal and incorporates the selected backup:
 
-Why this is fine for a personal journal: conflicts require **the same entry edited on both phones between two syncs**. With one human, you're editing one entry on one phone at a time. Expected frequency: ~never.
+| Situation | Result |
+|---|---|
+| ID exists only in backup | Imported |
+| ID exists only locally | Kept |
+| Same ID, backup has newer `updated` | Backup version replaces local version |
+| Same ID, local is equally new or newer | Local version is kept |
+| Malformed Markdown file | Preserved under its filename; a collision receives `_import-N` suffix |
+| Revision history | Missing revision files are added for IDs present after merge; every entry remains capped at its newest 20 revisions |
 
-Safety net: when a real conflict happens, the loser isn't destroyed — it's saved as a separate `_conflict-<id>-<device>.md` entry so you can merge manually if you ever notice.
+The entire zip is validated and extracted to an app-private staging directory before any journal file changes. Each accepted merge write remains atomic.
 
-### Worked example
+## Replace import
 
-| Time | Event | A has | B has | Winner |
-|---|---|---|---|---|
-| 10:00 | entry `e1` exists, synced | v1 | v1 | — |
-| 10:05 | edit on A | v2 | v1 | |
-| 10:07 | edit on B (same entry!) | v2 | v3 | |
-| 10:10 | sync, A initiates | | | |
-| 10:10 | compare: B's `updated` > A's | | | **v3** |
-| 10:10 | A pulls v3, saves own v2 as `_conflict-e1-a.md` | v3 | v3 | |
+Settings → **Replace this journal** first shows a destructive confirmation. After selection, LifeNote:
 
-## Deletions: tombstones
+1. validates and extracts the complete backup into a sibling staging directory;
+2. atomically renames the current journal directory aside;
+3. atomically renames the staged journal into place;
+4. restores the original directory if the second rename fails;
+5. removes the old directory only after replacement succeeds.
 
-Deleting an entry must propagate — otherwise the next sync resurrects it (the classic "deleted on A, still on B, comes back" bug).
+Replace affects journal entries and their included revision history. The lock PIN, theme, accent, text size, and device label remain unchanged.
 
-Solution: **delete = edit**. The entry file gets `deleted: true` in its front matter, disappears from the UI, and syncs like any other change. Tombstones are auto-purged 30 days after `updated`, independently on each device.
+## Import safeguards
 
-**Multi-device caveat (documented behavior):** if a device stays offline longer than 30 days while others synced its deletion and purged, rejoining can resurrect the deleted entry (its live copy flows back to peers). Remedy when it happens: delete again after all devices are online, or reconcile via export/import. Accepted tradeoff — no delivery receipts, no complexity; frequency ≈ never in real use.
+- Only `journal/<filename>.md` entries and `journal/.history/<entry-id>/<millis>.md` revisions are accepted
+- Revision metadata must match its history folder; traversal paths and unrelated files reject the whole import
+- Maximum 20,000 files and 100 MiB uncompressed data
+- Invalid or interrupted imports leave the current journal unchanged during staging
+- Zip reads and writes occur only while the app is open
 
-## API reference (the whole thing)
+## Local API reference
 
-All requests require header `X-LifeNote-Token: <PIN>`. All bodies are UTF-8. Server rejects anything else with `403`.
+All `/api/*` requests require `X-LifeNote-Token`. The server accepts connections only from loopback.
 
 | Method | Path | Body | Response |
 |---|---|---|---|
-| `POST` | `/api/ping` | — | `200 {"name":"pixel-a","entries":42}` |
-| `GET` | `/api/index` | — | `200 [{"id":"...","updated":"...","deleted":false},...]` |
-| `GET` | `/api/entries/{id}` | — | `200` full entry file (front matter + body) |
-| `PUT` | `/api/entries/{id}` | full entry file | `200` if accepted, `409` if receiver's copy is newer (LWW reject — initiator then pulls instead) |
-| `GET` | `/` | — | the UI (used only for debugging in a PC browser) |
-| `GET` | `/api/config` | — | `200 {"token":"...","device":"..."}` — **loopback-only**, hands the local UI its own token; never answers remote peers |
-| `OPTIONS` | any | — | CORS preflight reply (WebView UI on `file://` needs it for `PUT`) |
+| `GET` | `/api/index` | — | entry metadata array |
+| `GET` | `/api/entries/{id}` | — | full entry Markdown |
+| `PUT` | `/api/entries/{id}` | full entry Markdown | `200` saved, `409` when the stored version is newer |
+| `POST` | `/api/history/{id}/snapshot` | — | snapshots the current entry once unless identical to the newest revision |
+| `GET` | `/api/history/{id}` | — | newest-first revision metadata, maximum 20 |
+| `GET` | `/api/history/{id}/{key}` | — | full revision Markdown |
+| `POST` | `/api/history/{id}/{key}/restore` | — | snapshots current content, then restores the revision with a fresh `updated` |
+| `GET` | `/api/config` | — | local token and device label |
+| `PUT` | `/api/settings` | `{"device":"..."}` | saves the device label |
+| `GET` | `/` | — | debug UI |
+| `OPTIONS` | any | — | CORS preflight response |
 
-Anything else → `404`. Malformed HTTP → connection closed. There is no auth role system, no sessions, no cookies — one shared PIN is the whole security model, appropriate for a home LAN.
+Anything else returns `404`; missing or incorrect tokens return `403`; malformed HTTP closes the connection.
 
-## Failure modes & behavior
+## Deletions
 
-| Situation | Behavior |
-|---|---|
-| Peer unreachable | Skipped silently; other peers still sync; entries stay dirty until a peer succeeds |
-| Sync interrupted mid-transfer | Each entry is one atomic file write — worst case one entry is stale, next sync fixes it |
-| Two devices edited different entries offline | No conflict — both transfer, both kept |
-| Two devices edited the *same* entry offline | LWW + conflict copy (see above); result is order-independent across all peers |
-| Three+ devices, staggered syncs | Converge to identical state regardless of sync order (absolute timestamps) |
-| Wrong PIN | `403`, that peer's sync aborts, UI flags the pairing problem; other peers unaffected |
-| Peer IP changed | Ping timeout for that peer only; update its registry entry in Settings |
-| Device retired permanently | Remove it from every remaining device's peer registry (Settings) |
+Delete marks an entry with `deleted: true`. Tombstones remain hidden and are retained for 30 days so merging an older backup does not immediately resurrect a recently deleted entry. They are purged locally after that window.

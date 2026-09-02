@@ -3,10 +3,10 @@ package com.lifenote
 import android.content.Context
 import android.content.SharedPreferences
 import java.security.SecureRandom
+import java.security.MessageDigest
 
 /**
- * Device identity + pairing registry. Backed by SharedPreferences.
- * The token is generated once per install and shared manually with peers.
+ * Local app preferences backed by SharedPreferences.
  */
 class Settings private constructor(private val prefs: SharedPreferences) {
 
@@ -24,10 +24,14 @@ class Settings private constructor(private val prefs: SharedPreferences) {
         get() = prefs.getString(KEY_DEVICE, null) ?: defaultDeviceName()
         set(value) = prefs.edit().putString(KEY_DEVICE, value).apply()
 
-    /** Raw JSON array of {name, addr} — schema owned by the UI until sync phase. */
-    var peersJson: String
-        get() = prefs.getString(KEY_PEERS, null) ?: "[]"
-        set(value) = prefs.edit().putString(KEY_PEERS, value).apply()
+    val hasLockPin: Boolean get() = prefs.contains(KEY_LOCK_PIN)
+
+    fun setLockPin(pin: String) {
+        prefs.edit().putString(KEY_LOCK_PIN, hash(pin)).apply()
+    }
+
+    fun matchesLockPin(pin: String): Boolean =
+        prefs.getString(KEY_LOCK_PIN, "") == hash(pin)
 
     private fun generateToken(): String {
         val alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -41,10 +45,13 @@ class Settings private constructor(private val prefs: SharedPreferences) {
         return model.ifEmpty { "android" }.replace(Regex("\\s+"), "-").lowercase()
     }
 
+    private fun hash(value: String): String = MessageDigest.getInstance("SHA-256")
+        .digest(value.toByteArray(Charsets.UTF_8)).joinToString("") { "%02x".format(it) }
+
     companion object {
         private const val KEY_TOKEN = "token"
         private const val KEY_DEVICE = "device_name"
-        private const val KEY_PEERS = "peers_json"
+        private const val KEY_LOCK_PIN = "lock_pin"
 
         fun load(context: Context): Settings {
             val prefs = context.getSharedPreferences("lifenote", Context.MODE_PRIVATE)

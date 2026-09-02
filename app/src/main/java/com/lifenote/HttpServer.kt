@@ -2,20 +2,21 @@ package com.lifenote
 
 import android.content.res.AssetManager
 import java.io.BufferedInputStream
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.net.InetSocketAddress
+import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
+import org.json.JSONObject
 
 /**
  * Hand-rolled HTTP/1.1 listener on port 8420 (doc 05).
- * Five routes only; everything else is a 404. Token auth on every
+ * Documented routes only; everything else is a 404. Token auth on every
  * API route except loopback /api/config and the debug UI at /.
  */
 class HttpServer(
     private val port: Int,
     private val store: JournalStore,
+    private val history: HistoryStore,
     private val settings: Settings,
     private val assets: AssetManager
 ) {
@@ -26,7 +27,7 @@ class HttpServer(
     fun start() {
         if (running) return
         running = true
-        serverSocket = ServerSocket(port)
+        serverSocket = ServerSocket(port, 50, InetAddress.getLoopbackAddress())
         acceptThread = Thread {
             while (running) {
                 try {
@@ -141,7 +142,7 @@ class HttpServer(
         }
 
         if (req.method == "GET" && req.path == "/api/config") {
-            // loopback only — hands the local UI its own token (never a peer)
+            // Loopback only: hands the local WebView its API token.
             if (!req.isLoopback) return Triple(403, "text/plain", "forbidden")
             return json(200, "{\"token\":\"${jEsc(settings.token)}\",\"device\":\"${jEsc(settings.deviceName)}\"}")
         }
@@ -154,9 +155,6 @@ class HttpServer(
         }
 
         return when {
-            req.method == "POST" && req.path == "/api/ping" ->
-                json(200, "{\"name\":\"${jEsc(settings.deviceName)}\",\"entries\":${store.index().count { !it.deleted }}}")
-
             req.method == "GET" && req.path == "/api/index" -> {
                 val items = store.index().joinToString(",") { m ->
                     "{\"id\":\"${jEsc(m.id)}\",\"created\":\"${jEsc(m.created)}\"," +
@@ -183,6 +181,48 @@ class HttpServer(
                 }
             }
 
+            req.method == "PUT" && req.path == "/api/settings" -> {
+                val body = runCatching { JSONObject(req.body) }.getOrNull()
+                    ?: return Triple(400, "text/plain", "invalid settings")
+                body.optString("device").trim().takeIf { it.isNotEmpty() }?.let { settings.deviceName = it }
+                json(200, "{\"saved\":true}")
+            }
+
+            req.path.startsWith("/api/history/") -> historyRoute(req)
+
+            else -> Triple(404, "text/plain", "not found")
+        }
+    }
+
+    private fun historyRoute(req: Request): Triple<Int, String, String> {
+        val parts = req.path.removePrefix("/api/history/").split('/').filter { it.isNotEmpty() }
+        val id = parts.firstOrNull() ?: return Triple(404, "text/plain", "not found")
+        return when {
+            req.method == "POST" && parts.size == 2 && parts[1] == "snapshot" -> {
+                val raw = store.read(id) ?: return Triple(404, "text/plain", "missing")
+                json(200, "{\"saved\":${history.snapshot(id, raw)}}")
+            }
+            req.method == "GET" && parts.size == 1 -> {
+                val items = history.list(id).joinToString(",") { revision ->
+                    "{\"key\":\"${jEsc(revision.key)}\",\"updated\":\"${jEsc(revision.updated)}\"," +
+                        "\"title\":\"${jEsc(revision.title)}\"}"
+                }
+                json(200, "[$items]")
+            }
+            req.method == "GET" && parts.size == 2 -> {
+                val raw = history.read(id, parts[1]) ?: return Triple(404, "text/plain", "missing")
+                Triple(200, "text/plain; charset=utf-8", raw)
+            }
+            req.method == "POST" && parts.size == 3 && parts[2] == "restore" -> {
+                val current = store.read(id) ?: return Triple(404, "text/plain", "missing")
+                val revision = history.read(id, parts[1]) ?: return Triple(404, "text/plain", "missing")
+                history.snapshot(id, current)
+                when (val result = store.restoreRevision(revision, id, settings.deviceName)) {
+                    is JournalStore.WriteResult.Ok -> json(200, "{\"restored\":true}")
+                    is JournalStore.WriteResult.Conflict -> json(409, "{\"conflict\":true}")
+                    is JournalStore.WriteResult.Invalid -> json(400, "{\"error\":\"${jEsc(result.reason)}\"}")
+                }
+            }
             else -> Triple(404, "text/plain", "not found")
         }
     }

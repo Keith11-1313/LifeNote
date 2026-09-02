@@ -8,6 +8,7 @@ Authoritative map of the repository. Every file has one stated job; files withou
 LifeNote/
 ├── README.md                        ← project front page + doc index
 ├── docs/                            ← normative documentation set (01–09)
+├── design/font-sources/             ← original Chubbo and Supreme font packages
 │
 ├── settings.gradle.kts              ← declares the single module
 ├── build.gradle.kts                 ← plugin versions (AGP, Kotlin)
@@ -17,20 +18,24 @@ LifeNote/
 │
 ├── app/
 │   ├── build.gradle.kts             ← sdkVersion 26 min / 35 target, app id, signing config
-│   ├── keystore.jks                 ← release signing key — 30-year validity, BACKED UP (doc 08)
+│   ├── proguard-rules.pro            ← preserves the native JS bridge during R8 optimization
+│   ├── keystore.jks                 ← locally generated release key; absent until doc 07 Step 1
 │   └── src/main/
 │       ├── AndroidManifest.xml      ← app label/icon, INTERNET permission, adjustResize
 │       ├── assets/
-│       │   └── index.html           ← ENTIRE UI: 5 views + CSS + JS + mock-mode adapter
+│       │   ├── index.html           ← ENTIRE UI: 5 views + CSS + JS + mock-mode adapter
+│       │   └── fonts/               ← bundled Chubbo Bold + Supreme Regular WOFF2 only
 │       └── java/com/lifenote/
 │           ├── MainActivity.kt      ← PIN gate, WebView host, server lifecycle
 │           ├── HttpServer.kt        ← hand-written HTTP/1.1 on ServerSocket, port 8420
 │           ├── JournalStore.kt      ← CRUD + front-matter parsing over journal/*.md
-│           ├── SyncEngine.kt        ← peer protocol: ping→index→diff→pull/push (LWW)
-│           └── Settings.kt          ← peer address, token, device name, lock PIN
+│           ├── HistoryStore.kt      ← bounded, atomic per-entry revision snapshots
+│           ├── ArchiveManager.kt    ← zip export + staged merge/replace import
+│           └── Settings.kt          ← local API token, device name, lock PIN
 │
 ├── release/
-│   └── LifeNote-v1.0.0.apk          ← shippable artifact (renamed build output)
+│   ├── LifeNote-v1.0.0-debug.apk    ← installable development build
+│   └── LifeNote-v1.0.0.apk          ← release-signed artifact after keystore setup
 │
 └── export/                          ← example export zip for format reference
 ```
@@ -39,31 +44,31 @@ LifeNote/
 
 | File | ~Lines | Sole responsibility |
 |---|---|---|
-| `index.html` | ~1300 | All five views, Markdown renderer (~80 lines), mock adapter |
-| `MainActivity.kt` | ~110 | Shell lifecycle, server start/stop, JS dialog bridge |
-| `HttpServer.kt` | ~205 | TCP accept, HTTP parse, token auth, route dispatch, CORS |
-| `JournalStore.kt` | ~185 | File CRUD, front-matter parse, atomic writes, LWW, tombstone purge |
-| `SyncEngine.kt` | ~160 | Protocol execution, LWW decisions |
-| `Settings.kt` | ~55 | Token (generated once), device name, peers JSON (SharedPreferences) |
+| `index.html` | ~1225 | All six views, autosave, Markdown renderer, mock adapter |
+| `MainActivity.kt` | ~205 | Shell lifecycle, lock gate, document picker, WebView bridges |
+| `HttpServer.kt` | ~245 | Loopback TCP accept, HTTP parse, token auth, entry/history routes |
+| `JournalStore.kt` | ~240 | File CRUD, atomic writes, merge/replace operations, tombstone purge |
+| `ArchiveManager.kt` | ~145 | Zip export, validation, staged import, imported-history pruning |
+| `HistoryStore.kt` | ~75 | Deduplicated atomic snapshots and newest-20 retention |
+| `Settings.kt` | ~65 | Install-local API token, PIN verification value, device name |
 
-Total first-party code: **~1900 lines.** Third-party runtime dependencies: **0.**
+Total first-party code: **~2200 lines.** Third-party runtime dependencies: **0.**
 
 ## Dependency rules (enforced by review, not tooling)
 
 ```
 MainActivity ──► HttpServer ──► JournalStore
-      │                             ▲
-      └────► SyncEngine ────────────┘
-                    │
-                    └──► Settings
+      │                └──────► HistoryStore ──► JournalStore
+      ├────────────► ArchiveManager ──► JournalStore
+      └────────────► Settings
 
 index.html ──fetch()──► 127.0.0.1:8420   (own app's server only)
 ```
 
 1. `JournalStore` never imports network classes — testable with airplane mode on
-2. `HttpServer` contains no sync policy — it is a dispatcher, not a decision-maker
-3. `SyncEngine` is the sole initiator of outbound sockets
-4. The UI never touches persistence except via the local API
+2. `HttpServer` binds only to loopback and never accepts LAN clients
+3. No component initiates outbound network connections
+4. The UI touches files only through the local API and the narrow archive bridge
 5. No file exceeds 300 lines of logic; split when it does
 
 ## Why specific items exist
@@ -74,6 +79,8 @@ index.html ──fetch()──► 127.0.0.1:8420   (own app's server only)
 | `keystore.jks` in-repo location | Single known path; doc 07 generates it here; doc 08 mandates its backup |
 | `release/` folder | Phones receive APK copies from here; versioned filenames prevent "which file?" confusion |
 | `export/` sample | Locks the export contract with a concrete artifact |
+| `design/font-sources/` | Keeps original font packages out of the APK while preserving their source files |
+| `app/proguard-rules.pro` | Keeps the annotated WebView bridge stable while R8 removes unreachable release code |
 
 ## Deliberately absent (and why)
 
@@ -82,7 +89,7 @@ index.html ──fetch()──► 127.0.0.1:8420   (own app's server only)
 | `package.json`, `node_modules`, bundlers | Vanilla JS requires no build chain; a bundler would be the first dependency to rot |
 | Third-party libraries in `app/build.gradle.kts` | Every library is a maintenance liability with someone else's roadmap |
 | CI/CD pipelines | Local builds only; there is no team, no remote, no need |
-| Automated test suites | v1 relies on the 7-point checklist in [doc 07](07-build-deploy.md); ~650 lines of Kotlin logic is cheaper to verify manually than to maintain framework for |
+| Automated test suites | v1 relies on the 9-point checklist in [doc 07](07-build-deploy.md); the compact Kotlin layer is cheaper to verify manually than to burden with a test framework |
 
 ## Conventions
 

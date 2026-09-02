@@ -16,17 +16,18 @@ Realistic maintenance schedule: **none**, plus one 10-second habit below.
 
 Settings → **Export** → zip lands in Downloads → copy anywhere (Google Drive, PC, SD card, email to yourself).
 
-30 days of unexported writing is the maximum you can ever lose to a lost/broken phone. That's the entire backup strategy, and it's enough because:
+The time since the latest off-device export is the maximum writing window a lost or broken phone can take with it. The backup stays durable because:
 
 - Entries are plain files — no proprietary lock-in, ever
-- Both phones hold near-complete copies of each other anyway (dual redundancy by design)
+- Each entry's newest 20 prior versions are included for recovery from accidental edits
+- Merge and replace restore modes cover both recovery and journal-combination workflows
 
 ## Failure playbook
 
 ### 🔴 Phone lost / broken / stolen
-1. Data: near-zero loss (every other paired phone holds a near-complete copy; export from any of them)
-2. Replace phone → install same APK (doc 07) → pair against any surviving phone → sync
-3. Optional cleanup: remove the dead device from surviving phones' peer registries
+1. Install the same APK on the replacement phone (doc 07)
+2. Open LifeNote, choose a new lock PIN, and select **Replace this journal**
+3. Choose the latest off-device export
 
 ### 🔴 ALL phones lost at once
 1. Restore latest exported zip onto whichever phone comes next (Import button)
@@ -35,17 +36,13 @@ Settings → **Export** → zip lands in Downloads → copy anywhere (Google Dri
 ### 🟡 App won't open / behaves weirdly
 1. Export first (if it opens at all)
 2. Reinstall same APK over the top (update-install keeps data)
-3. Nuclear option: uninstall → reinstall → Import zip → re-pair. Data lives in the zip, not the app.
+3. Nuclear option: uninstall → reinstall → Replace from the latest export. Data lives in the zip, not the app.
 
-### 🟡 Sync stopped working
-Checklist in order:
-1. Both phones on the same WiFi?
-2. App open on the peer? (server runs while app is open)
-3. Peer IP changed? (router reassignment — check IP shown on peer's Settings screen, update it)
-4. Still dead: open `http://<peer-ip>:8420/api/ping` in the phone's browser — error message tells you which layer broke
-
-### 🟠 Router replaced / WiFi renamed
-New IPs likely → update peer address in both phones' Settings once. Nothing else changes.
+### 🟡 Import rejected
+1. Confirm the file is a LifeNote export zip
+2. Do not add unrelated files or nested folders inside `journal/`
+3. Try exporting a fresh backup from the source installation
+4. A rejected import does not alter the current journal
 
 ### 🟠 New phone in the future, APK won't install ("target old Android version")
 Far-future problem (many Android years away). Fix path documented for whoever's around:
@@ -53,7 +50,7 @@ Far-future problem (many Android years away). Fix path documented for whoever's 
 2. Any developer (or future AI assistant) can do it in an afternoon — the docs ARE the maintenance plan
 
 ### 🔴 Keystore (`keystore.jks`) lost
-Consequence: cannot *upgrade*-install; must uninstall + reinstall + import export zip + re-pair.
+Consequence: cannot *upgrade*-install; must export, uninstall, reinstall, then replace from the export.
 Prevention: keystore lives in 3 places minimum (PC, cloud drive, USB stick) **starting today**. GitHub does NOT hold it — `*.jks` is gitignored by policy and never attached to Releases.
 
 ## Off-device assets on GitHub
@@ -68,14 +65,13 @@ Prevention: keystore lives in 3 places minimum (PC, cloud drive, USB stick) **st
 
 1. Export zip from any existing phone → copy to new phone
 2. Install APK on new phone (doc 07)
-3. Import zip → add the new phone's IP/PIN to one existing phone's registry, and add an existing phone's address on the new phone
-4. First sync pulls the full journal; transitive convergence spreads it to the rest of the mesh per doc 05
-5. Done — the network re-forms around the new member
+3. Choose **Replace this journal** and select the copied zip
+4. Verify several entries, then export a fresh backup from the new phone
 
 ## What this system will NEVER need
 
 - Subscription renewals, account recovery emails
-- Certificate renewals (LAN HTTP), domain names
+- Certificate renewals, domains, routers, or peer addresses
 - Server patches, dependency security updates
 - Play Store compliance migrations
 

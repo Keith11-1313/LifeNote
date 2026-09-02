@@ -11,7 +11,7 @@ One-time setup, then permanent capability: the PC compiles APKs offline from her
 | JDK 17 (Temurin 17.0.12) | ✅ present — `JAVA_HOME` points at `C:\Program Files\Eclipse Adoptium\jdk-17.0.12.7-hotspot` |
 | Android SDK cmdline-tools | ✅ installed at `%LOCALAPPDATA%\Android\Sdk\cmdline-tools\latest` |
 | SDK platform + build-tools | ✅ installed — platform-tools 37, platforms;android-35, build-tools;35.0.0 |
-| GitHub CLI 2.98.0 (`gh`) | ✅ installed, authenticated as `Keith11-1313` (scopes: repo, workflow); remote `origin` = `Keith11-1313/LifeNote`, branch `main` |
+| GitHub CLI 2.98.0 (`gh`) | ⚠️ installed; authentication must be refreshed before the v1 push/release; remote `origin` = `Keith11-1313/LifeNote`, branch `main` |
 
 **Environment is complete — all steps below are reference for rebuild-on-a-new-machine scenarios only.**
 
@@ -121,3 +121,7 @@ All three answering = environment ready.
 - The SDK never auto-updates or breaks itself
 - Builds work offline once Gradle has cached dependencies
 - If the PC dies: this doc rebuilds the environment in ~20 minutes on any Windows machine
+
+## Release-build behavior
+
+The release build uses Android's bundled R8 optimizer and resource shrinker; it adds no runtime dependency. When `app\keystore.jks` exists and `LIFENOTE_KEYSTORE_PASSWORD` is set, Gradle signs the optimized APK with alias `lifenote`. Without both, `assembleRelease` deliberately produces an unsigned verification artifact.

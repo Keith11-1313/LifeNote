@@ -8,7 +8,10 @@ Normative contract. The data format is the project's most durable interface: it 
 /data/data/com.lifenote/files/journal/      ← app-private, per phone
 ├── 2026-08-01_090512_k3f9a1.md
 ├── 2026-08-15_223041_p8x2m7.md
-└── 2026-08-23_143012_a1b2c3.md
+├── 2026-08-23_143012_a1b2c3.md
+└── .history/
+    └── 20260823T143012-a1b2c3/
+        └── 1788350400000.md
 ```
 
 | Rule | Value |
@@ -17,6 +20,8 @@ Normative contract. The data format is the project's most durable interface: it 
 | Filename pattern | `YYYY-MM-DD_HHmmss_<id6>.md` (creation instant + id suffix) |
 | Encoding | UTF-8, Unix (`\n`) line endings |
 | Directory protection | Android app sandbox + device-level encryption |
+
+`.history/<entry-id>/` contains at most 20 byte-preserved prior versions. A snapshot is created once when an existing entry begins an editing session and before delete or restore. Restoring a revision gives it a fresh `updated` timestamp and first snapshots the displaced current version. Purging a tombstone also removes that entry's history directory.
 
 The folder is private to the app; uninstalling deletes it. Export (doc 08) is the mandated countermeasure.
 
@@ -39,12 +44,12 @@ She said something I want to remember: "slow is also a direction."
 
 | Field | Required | Purpose | Rules |
 |---|---|---|---|
-| `id` | ✅ | Permanent sync identity | `<YYYYMMDDTHHmmss>-<6 digits>`; immutable; never reused |
+| `id` | ✅ | Permanent entry identity | `<YYYYMMDDTHHmmss>-<6 digits>`; immutable; never reused |
 | `created` | ✅ | Write instant | ISO-8601 with timezone offset |
 | `updated` | ✅ | Last-edit instant; **sole LWW arbiter** | ISO-8601 with offset; bumped on every mutation including deletes |
 | `device` | ✅ | Origin of current version | Freeform label from Settings; aids human conflict review |
 | `title` | ⬜ optional | Display title in lists/reader | ≤ 60 chars, single line; omitted when empty |
-| `deleted` | ✅ | Tombstone flag | `true` → hidden from all views; purged 30 days after `updated`, on all peers, independently |
+| `deleted` | ✅ | Tombstone flag | `true` → hidden from all views; purged locally 30 days after `updated` |
 
 The UI writes a dedicated `title:` key. Bodies without one fall back to "first body line displays as title" for hand-written files — both forms render identically everywhere.
 
@@ -62,7 +67,7 @@ Binding for `JournalStore.kt` and every future tool that reads these files:
 
 Entries are stored as raw Markdown. Storage is always the source of truth; rendering is display-only and never rewrites stored bytes.
 
-**Editor:** WYSIWYG-style (title field + formatted body, notes-app interaction). The toolbar applies real visual formatting; on save the formatted content is serialized onto exactly the Markdown subset below. Hand-written Markdown symbols in stored files remain fully supported — both authoring paths produce identical storage.
+**Editor:** WYSIWYG-style (title field + formatted body, notes-app interaction). The toolbar applies real visual formatting; after 900 ms idle, and again on Done or Back when needed, content is serialized onto exactly the Markdown subset below. Hand-written Markdown symbols in stored files remain fully supported — both authoring paths produce identical storage.
 
 **Reader view renders exactly this subset:**
 
@@ -85,9 +90,9 @@ Anything else renders literally — no HTML passthrough, no images, no link auto
 
 Sustained heavy use ≈ 365 entries/year × ~2 KB ≈ **700 KB/year**, ≈ 7 MB/decade.
 
-Consequence: the sync protocol may diff by full-index comparison each run (milliseconds). No incremental indexing will ever be required. Simplicity here is funded by trivial scale.
+Consequence: the app may build its timeline and compare merge-import metadata from the full file set (milliseconds). No incremental database index is required.
 
-## Export format (D2/D3)
+## Export and import format (D2–D4)
 
 Export zips the journal folder byte-for-byte:
 
@@ -95,7 +100,10 @@ Export zips the journal folder byte-for-byte:
 journal-2026-08-23.zip
 └── journal/
     ├── 2026-08-01_090512_k3f9a1.md
+    ├── .history/20260823T143012-a1b2c3/1788350400000.md
     └── …
 ```
 
-Import accepts exactly this shape and merges entries into the local store using standard LWW semantics. Internal format ≡ export format: there is no conversion layer, therefore no conversion layer can break.
+Import accepts exactly this shape. **Merge** retains local-only entries, adds imported-only entries, keeps the version with the newer `updated` timestamp when IDs collide, and incorporates valid history for IDs that exist after merging. **Replace** validates and stages the complete archive, then atomically substitutes the journal directory including history. Both modes cap each history at 20 and preserve malformed top-level `.md` files rather than dropping them. Settings and the lock PIN are not part of the archive.
+
+Internal format ≡ export format: there is no conversion layer, therefore no conversion layer can break.

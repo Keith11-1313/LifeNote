@@ -7,14 +7,14 @@ How development actually happens on this project: the loop, the tooling, the rul
 ```
 edit index.html ──► refresh PC browser (mock mode)      ← seconds, no build
 edit Kotlin     ──► gradlew assembleDebug ──► emulator   ← ~1 min
-ship            ──► gradlew assembleRelease ──► release/ ──► both phones
+ship            ──► gradlew assembleRelease ──► release/ ──► phone
 ```
 
 The two-tier setup exists because UI iteration must not pay the Android build tax.
 
 ### Tier 1 — Browser-only UI work
 
-`index.html` contains a mock adapter: when loaded with `?mock=1`, or when the local API is unreachable, it runs against an in-memory dataset (~10 fake entries) and simulates sync results.
+`index.html` contains a mock adapter: when loaded with `?mock=1`, or when the local API is unreachable, it runs against an in-memory dataset (~10 fake entries) and simulates archive-control feedback.
 
 ```powershell
 # from repo root — any static server works; Python's is fine
@@ -22,7 +22,7 @@ python -m http.server 8080 -Directory app\src\main\assets
 # open http://localhost:8080/index.html?mock=1
 ```
 
-What this tier validates: layout, all five views, calendar logic, Markdown rendering, interaction flows.
+What this tier validates: layout, all six views, autosave/history behavior, calendar logic, Markdown rendering, interaction flows.
 What it cannot validate: storage, real networking, APK behavior.
 
 ### Tier 2 — Emulator / device integration
@@ -38,8 +38,6 @@ adb shell am start -n com.lifenote/.MainActivity
 # stream logs while testing
 adb logcat --pid=$(adb shell pidof com.lifenote)
 ```
-
-Two emulators on the same host network can pair with each other via `10.0.2.15`-style addresses for end-to-end sync tests without physical phones.
 
 Physical phone: enable Developer Options → USB debugging → `adb install -r app\build\outputs\apk\debug\app-debug.apk`.
 
@@ -68,10 +66,11 @@ Physical phone: enable Developer Options → USB debugging → `adb install -r a
 ```powershell
 # 1. bump versionName/versionCode in app/build.gradle.kts
 # 2. build signed release
+$env:LIFENOTE_KEYSTORE_PASSWORD = '<release-key-password>'
 .\gradlew assembleRelease
 # 3. archive with versioned name
 Copy-Item app\build\outputs\apk\release\app-release.apk release\LifeNote-v<version>.apk
-# 4. copy to both phones, tap-to-install (doc 07 step 4)
+# 4. copy to the phone, tap-to-install (doc 07 step 4)
 # 5. publish GitHub Release — the permanent APK shelf, downloadable from any phone browser:
 gh release create v<version> release\LifeNote-v<version>.apk `
   --title "LifeNote v<version>" `
@@ -82,6 +81,8 @@ git push origin main
 
 GitHub Releases double as the off-device APK backup: every shipped build remains downloadable at `github.com/Keith11-1313/LifeNote/releases` indefinitely. Keystore files are never attached to releases and never committed (`*.jks` is gitignored) — doc 08's manual backup policy still governs them.
 
+Release builds run R8 optimization and resource shrinking. Set `LIFENOTE_KEYSTORE_PASSWORD` in the current PowerShell session; Gradle signs only when both that value and `app\keystore.jks` exist. Never place the password in source, docs, Gradle properties, or shell history.
+
 Rollback policy: previous APKs stay in `release/` AND on GitHub Releases forever. Reinstalling an older APK over a newer one is supported (same keystore); data files are forward-compatible by parser contract.
 
 ## Environment facts (this PC)
@@ -89,7 +90,7 @@ Rollback policy: previous APKs stay in `release/` AND on GitHub Releases forever
 | Item | State |
 |---|---|
 | JDK 17.0.12 (Temurin) at `C:\Program Files\Eclipse Adoptium\jdk-17.0.12.7-hotspot` | ✅ verified |
-| Android SDK cmdline-tools + platform 35 + build-tools 35 | ⬜ install per [doc 03](03-environment-setup.md) |
+| Android SDK cmdline-tools + platform 35 + build-tools 35 | ✅ verified |
 | Gradle | ✅ wrapper-provisioned on first build |
 
 ## Onboarding path (cold start)
@@ -100,7 +101,7 @@ New developer, zero context:
 2. Read [02 architecture](02-architecture.md) → know how it hangs together
 3. Run Tier 1 (`?mock=1`) → see the product in 60 seconds
 4. Complete [03 environment](03-environment-setup.md) → be able to build
-5. Read [05 sync](05-sync-protocol.md) + [06 storage](06-storage-format.md) → know the two hard contracts
+5. Read [05 local API/restore](05-sync-protocol.md) + [06 storage](06-storage-format.md) → know the two hard contracts
 6. Ship something small (calendar marker styling, search ranking tweak) through the full definition-of-done cycle
 
 Total cold-start to first merged change: under a day.
