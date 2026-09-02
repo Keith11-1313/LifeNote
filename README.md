@@ -43,7 +43,3 @@ One sideloaded APK contains the journal UI and stores every entry as a plain `.m
 | Data format | One UTF-8 Markdown file per entry (internal ≡ export format) |
 | Install method | Sideloaded APK, no Play Store |
 | Recurring cost | Zero, by design |
-
-## Status
-
-**v1.0.2 release complete.** Production data isolation ✅ · cold-start journal load ✅ · editor autosave/reopen ✅ · autosave/history ✅ · optional app lock ✅ · export/merge/replace physical verification ✅ · browser QA ✅ · debug build/lint ✅ · signed v1.0.2 APK ✅.
