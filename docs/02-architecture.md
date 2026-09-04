@@ -51,11 +51,11 @@ Owns all pixels and interactions. Contains six views:
 
 | View | Function | Requirement IDs |
 |---|---|---|
-| Timeline | Date-grouped entry list, search bar on top | F4, F6 |
+| Timeline | Date-grouped entry list, search bar on top; untitled entries show one body excerpt without a duplicated fallback heading | F4, F6 |
 | Editor | Notes-app style title + WYSIWYG body; autosaves after 900 ms idle and flushes on Done/Back | F1–F3, F7–F9 |
 | Calendar | Month grid, entry-day markers, day drill-down | F5 |
-| Reader | Rendered Markdown view of one entry | F7 |
-| History | Newest 20 prior versions with explicit restore | F9 |
+| Reader | Rendered Markdown view of one entry with a content-first header and distinct actions | F7 |
+| History | Newest 20 prior versions with read-only review before explicit restore | F9 |
 | Settings | Appearance, optional app-lock controls, export, merge import, replace import, version | P1, D2–D4 |
 
 **Mock mode contract:** only an explicit `?mock=1` URL enables the in-memory fake dataset. Production startup and API failures never fall back to demo content; the UI reports local-journal unavailability instead.
@@ -70,7 +70,7 @@ CRUD over the journal folder. Parses/serializes front matter per doc 06. **Never
 
 ### HttpServer — `HttpServer.kt`
 
-Hand-written HTTP/1.1 listener on Java `ServerSocket`, zero dependencies. It binds explicitly to IPv4 `127.0.0.1:8420` rather than Android's device-dependent generic loopback address, serves the local WebView, requires the install-local token on API routes, and closes connections on malformed input.
+Hand-written HTTP/1.1 listener on Java `ServerSocket`, zero dependencies. It binds explicitly to IPv4 `127.0.0.1:8420` rather than Android's device-dependent generic loopback address, serves the local WebView plus its exact packaged WOFF2 font assets as binary responses, requires the install-local token on API routes, and closes connections on malformed input.
 
 ### ArchiveManager — `ArchiveManager.kt`
 

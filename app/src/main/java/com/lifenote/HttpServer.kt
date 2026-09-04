@@ -56,12 +56,17 @@ class HttpServer(
         val body: String
     )
 
+    private data class Response(
+        val status: Int,
+        val contentType: String,
+        val body: ByteArray
+    )
+
     private fun handle(socket: Socket) {
         try {
             socket.use { s ->
                 val req = readRequest(s) ?: return
-                val (status, contentType, body) = route(req)
-                val bytes = body.toByteArray(Charsets.UTF_8)
+                val (status, contentType, bytes) = route(req)
                 val head = buildString {
                     append("HTTP/1.1 $status\r\n")
                     append("Content-Type: $contentType\r\n")
@@ -131,27 +136,32 @@ class HttpServer(
 
     // ---------- routing ----------
 
-    private fun route(req: Request): Triple<Int, String, String> {
+    private fun route(req: Request): Response {
         if (req.method == "OPTIONS") {
-            return Triple(204, "text/plain", "")
+            return text(204, "text/plain", "")
         }
 
         if (req.method == "GET" && req.path == "/") {
             val html = assets.open("index.html").bufferedReader().use { it.readText() }
-            return Triple(200, "text/html; charset=utf-8", html)
+            return text(200, "text/html; charset=utf-8", html)
+        }
+
+        if (req.method == "GET" && req.path in FONT_ASSETS) {
+            val bytes = assets.open(req.path.removePrefix("/")).use { it.readBytes() }
+            return Response(200, "font/woff2", bytes)
         }
 
         if (req.method == "GET" && req.path == "/api/config") {
             // Loopback only: hands the local WebView its API token.
-            if (!req.isLoopback) return Triple(403, "text/plain", "forbidden")
+            if (!req.isLoopback) return text(403, "text/plain", "forbidden")
             return json(200, "{\"token\":\"${jEsc(settings.token)}\",\"device\":\"${jEsc(settings.deviceName)}\"}")
         }
 
         if (!req.path.startsWith("/api/")) {
-            return Triple(404, "text/plain", "not found")
+            return text(404, "text/plain", "not found")
         }
         if (req.token != settings.token) {
-            return Triple(403, "text/plain", "forbidden")
+            return text(403, "text/plain", "forbidden")
         }
 
         return when {
@@ -166,8 +176,8 @@ class HttpServer(
 
             req.method == "GET" && req.path.startsWith("/api/entries/") -> {
                 val id = req.path.removePrefix("/api/entries/")
-                val raw = store.read(id) ?: return Triple(404, "text/plain", "missing")
-                Triple(200, "text/plain; charset=utf-8", raw)
+                val raw = store.read(id) ?: return text(404, "text/plain", "missing")
+                text(200, "text/plain; charset=utf-8", raw)
             }
 
             req.method == "PUT" && req.path.startsWith("/api/entries/") -> {
@@ -183,16 +193,16 @@ class HttpServer(
 
             req.path.startsWith("/api/history/") -> historyRoute(req)
 
-            else -> Triple(404, "text/plain", "not found")
+            else -> text(404, "text/plain", "not found")
         }
     }
 
-    private fun historyRoute(req: Request): Triple<Int, String, String> {
+    private fun historyRoute(req: Request): Response {
         val parts = req.path.removePrefix("/api/history/").split('/').filter { it.isNotEmpty() }
-        val id = parts.firstOrNull() ?: return Triple(404, "text/plain", "not found")
+        val id = parts.firstOrNull() ?: return text(404, "text/plain", "not found")
         return when {
             req.method == "POST" && parts.size == 2 && parts[1] == "snapshot" -> {
-                val raw = store.read(id) ?: return Triple(404, "text/plain", "missing")
+                val raw = store.read(id) ?: return text(404, "text/plain", "missing")
                 json(200, "{\"saved\":${history.snapshot(id, raw)}}")
             }
             req.method == "GET" && parts.size == 1 -> {
@@ -203,12 +213,12 @@ class HttpServer(
                 json(200, "[$items]")
             }
             req.method == "GET" && parts.size == 2 -> {
-                val raw = history.read(id, parts[1]) ?: return Triple(404, "text/plain", "missing")
-                Triple(200, "text/plain; charset=utf-8", raw)
+                val raw = history.read(id, parts[1]) ?: return text(404, "text/plain", "missing")
+                text(200, "text/plain; charset=utf-8", raw)
             }
             req.method == "POST" && parts.size == 3 && parts[2] == "restore" -> {
-                val current = store.read(id) ?: return Triple(404, "text/plain", "missing")
-                val revision = history.read(id, parts[1]) ?: return Triple(404, "text/plain", "missing")
+                val current = store.read(id) ?: return text(404, "text/plain", "missing")
+                val revision = history.read(id, parts[1]) ?: return text(404, "text/plain", "missing")
                 history.snapshot(id, current)
                 when (val result = store.restoreRevision(revision, id, settings.deviceName)) {
                     is JournalStore.WriteResult.Ok -> json(200, "{\"restored\":true}")
@@ -216,12 +226,14 @@ class HttpServer(
                     is JournalStore.WriteResult.Invalid -> json(400, "{\"error\":\"${jEsc(result.reason)}\"}")
                 }
             }
-            else -> Triple(404, "text/plain", "not found")
+            else -> text(404, "text/plain", "not found")
         }
     }
 
-    private fun json(status: Int, body: String) =
-        Triple(status, "application/json; charset=utf-8", body)
+    private fun text(status: Int, contentType: String, body: String) =
+        Response(status, contentType, body.toByteArray(Charsets.UTF_8))
+
+    private fun json(status: Int, body: String) = text(status, "application/json; charset=utf-8", body)
 
     private fun jEsc(s: String): String = buildString {
         for (ch in s) when (ch) {
@@ -232,5 +244,12 @@ class HttpServer(
             '\t' -> append("\\t")
             else -> if (ch < ' ') append("\\u%04x".format(ch.code)) else append(ch)
         }
+    }
+
+    companion object {
+        private val FONT_ASSETS = setOf(
+            "/fonts/Chubbo-Bold.woff2",
+            "/fonts/Supreme-Regular.woff2"
+        )
     }
 }

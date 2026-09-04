@@ -48,10 +48,10 @@ She said something I want to remember: "slow is also a direction."
 | `created` | ✅ | Write instant | ISO-8601 with timezone offset |
 | `updated` | ✅ | Last-edit instant; **sole LWW arbiter** | ISO-8601 with offset; bumped on every mutation including deletes |
 | `device` | ✅ | Origin of current version | Internal Android model label retained for backup conflict review; not user-facing |
-| `title` | ⬜ optional | Display title in lists/reader | ≤ 60 chars, single line; omitted when empty |
+| `title` | ⬜ optional | Display label in lists and history | ≤ 60 chars, single line; omitted when empty |
 | `deleted` | ✅ | Tombstone flag | `true` → hidden from all views; purged locally 30 days after `updated` |
 
-The UI writes a dedicated `title:` key. Bodies without one fall back to "first body line displays as title" for hand-written files — both forms render identically everywhere.
+The UI writes a dedicated `title:` key only when the user enters one. A titleless entry stays titleless: list and calendar cards show its first non-empty body line once as the content excerpt, while the reader renders the body without synthesizing a heading.
 
 ## Parser contract
 
@@ -84,7 +84,7 @@ Entries are stored as raw Markdown. Storage is always the source of truth; rende
 
 Anything else renders literally — no HTML passthrough, no images, no link auto-detection beyond bare text. Rationale: an ~80-line renderer covers real journal needs; a full Markdown engine is a dependency that violates principle 1.
 
-**List/calendar views:** first non-empty body line, symbols stripped, truncated to 80 chars.
+**List/calendar views:** entries with a dedicated title show the title plus a body or time secondary line. Entries without a dedicated title show the first non-empty body line once, symbols stripped and truncated, instead of repeating it as a synthetic title and preview.
 
 ## Capacity model
 

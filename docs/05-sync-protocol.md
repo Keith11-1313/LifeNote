@@ -80,6 +80,7 @@ All `/api/*` requests require `X-LifeNote-Token`. The server accepts connections
 | `POST` | `/api/history/{id}/{key}/restore` | — | snapshots current content, then restores the revision with a fresh `updated` |
 | `GET` | `/api/config` | — | local token and device label |
 | `GET` | `/` | — | debug UI |
+| `GET` | `/fonts/Chubbo-Bold.woff2`, `/fonts/Supreme-Regular.woff2` | — | exact packaged font bytes used by the UI |
 | `OPTIONS` | any | — | CORS preflight response |
 
 Anything else returns `404`; missing or incorrect tokens return `403`; malformed HTTP closes the connection.

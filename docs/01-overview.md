@@ -36,12 +36,12 @@ No PC, NAS, network, account, or companion service is required for normal use.
 | F1 | Create entries containing a short title (≤ 60 chars) and a formatted body |
 | F2 | Edit any entry; `updated` timestamp changes on save |
 | F3 | Delete any entry; deletion creates a 30-day tombstone that prevents resurrection when merging an older backup |
-| F4 | Timeline view: all non-deleted entries, newest first, grouped by date |
+| F4 | Timeline view: all non-deleted entries, newest first, grouped by date; entries without an explicit title show one body excerpt instead of duplicating the first line as both title and preview |
 | F5 | Calendar view: current month grid, dot marker on days containing entries, tap day → filtered list |
 | F6 | Search: case-insensitive substring match across titles and bodies, results ranked newest first |
-| F7 | Notes-app style editing (WYSIWYG toolbar over the Markdown subset per [doc 06](06-storage-format.md)); Markdown rendering in reader; plain-text preview in lists; restrained solid-color elevated surfaces, semantic primary actions, borders, large Back targets, and tactile press states give the UI depth without gradients, with accent surfaces adapted for both light and dark themes |
+| F7 | Notes-app style editing (WYSIWYG toolbar over the Markdown subset per [doc 06](06-storage-format.md)); Markdown rendering in reader; plain-text preview in lists; packaged Supreme body text and Chubbo headings; restrained solid-color elevated surfaces, semantic primary actions, clearly bounded action controls, borderless large Back icons, and tactile press states give the UI depth without gradients, with accent surfaces adapted for both light and dark themes |
 | F8 | Editor autosaves non-empty changes after a 900 ms idle pause; Done and Android Back flush pending changes before closing, with visible Unsaved/Saving/Saved state |
-| F9 | Each editing session snapshots the prior entry version; Reader exposes the newest 20 revisions and can restore one while preserving the displaced current version |
+| F9 | Each editing session snapshots the prior entry version; Reader exposes the newest 20 revisions, opens a read-only preview before confirmation, and restores the selected revision while preserving the displaced current version |
 
 ### Data safety
 

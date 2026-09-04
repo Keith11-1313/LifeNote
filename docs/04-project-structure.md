@@ -44,15 +44,15 @@ LifeNote/
 
 | File | ~Lines | Sole responsibility |
 |---|---|---|
-| `index.html` | ~1365 | All views, autosave, custom app lock, Markdown renderer, explicit mock adapter |
+| `index.html` | ~1490 | All views, autosave, custom app lock, revision preview, Markdown renderer, explicit mock adapter |
 | `MainActivity.kt` | ~205 | Shell lifecycle, document picker, app-lock/archive WebView bridges |
-| `HttpServer.kt` | ~245 | Loopback TCP accept, HTTP parse, token auth, entry/history routes |
+| `HttpServer.kt` | ~255 | Loopback TCP accept, HTTP parse, binary font delivery, token auth, entry/history routes |
 | `JournalStore.kt` | ~240 | File CRUD, atomic writes, merge/replace operations, tombstone purge |
 | `ArchiveManager.kt` | ~145 | Zip export, validation, staged import, imported-history pruning |
 | `HistoryStore.kt` | ~75 | Deduplicated atomic snapshots and newest-20 retention |
 | `Settings.kt` | ~65 | Install-local API token, password verification value, internal device label |
 
-Total first-party code: **~2200 lines.** Third-party runtime dependencies: **0.**
+Total first-party code: **~2300 lines.** Third-party runtime dependencies: **0.**
 
 ## Dependency rules (enforced by review, not tooling)
 

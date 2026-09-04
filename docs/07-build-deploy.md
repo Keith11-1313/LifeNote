@@ -41,14 +41,14 @@ app\build\outputs\apk\release\app-release.apk
 Copy/rename it into the repo root for safekeeping:
 
 ```powershell
-Copy-Item app\build\outputs\apk\release\app-release.apk release\LifeNote-v1.0.2.apk
+Copy-Item app\build\outputs\apk\release\app-release.apk release\LifeNote-v1.0.3.apk
 ```
 
 Before the private release keystore exists, an installable debug build is available with:
 
 ```powershell
 .\gradlew assembleDebug
-Copy-Item app\build\outputs\apk\debug\app-debug.apk release\LifeNote-v1.0.2-debug.apk
+Copy-Item app\build\outputs\apk\debug\app-debug.apk release\LifeNote-v1.0.3-debug.apk
 ```
 
 The debug APK is suitable for personal device testing and is signed by the local Android debug key. Future release builds use the backed-up private keystore from Step 1.
@@ -67,7 +67,7 @@ Any of these works — the APK is just a file:
 
 ## Step 4 — Install on each phone (once per phone)
 
-1. Open the **Files** app → Downloads → tap `LifeNote-v1.0.2.apk` (or the provided `LifeNote-v1.0.2-debug.apk` test build)
+1. Open the **Files** app → Downloads → tap `LifeNote-v1.0.3.apk` (or the provided `LifeNote-v1.0.3-debug.apk` test build)
 2. Android: *"For your security, this phone is not allowed to install unknown apps"* → tap **Settings** → allow installs **from that Files app only** (scoped permission — safe, standard sideload flow)
 3. Back → **Install** → done
 4. Repeat on phone 2
@@ -87,17 +87,18 @@ Updating from v1.0.0 clears its legacy mandatory PIN once. App lock remains off 
 |---|---|---|
 | 1 | Airplane mode ON, write entry on A | Saved locally, no errors |
 | 2 | Type, pause for at least 900 ms, then leave the editor | Status reaches Saved and the entry remains after reopen |
-| 3 | Edit an entry twice, open History, restore the earlier version | Earlier text returns and the displaced current version remains in History |
+| 3 | Edit an entry twice, open History, select the earlier version, review it, then restore | No restore occurs on list tap; the preview shows the selected content; after confirmation the earlier text returns and the displaced current version remains in History |
 | 4 | Export backup | Chosen destination receives `journal/*.md` plus bounded `.history` files |
 | 5 | Add a second local entry, then merge the earlier backup from the phone's document provider | Picker opens regardless of the provider's zip MIME label; second entry remains; imported entries/history are added or kept by `updated`; a native result message appears |
 | 6 | Replace from the earlier backup after confirming | Current journal and its included history become exactly the backup; a native result message appears |
 | 7 | Select a malformed or unrelated zip | Import fails without changing current entries |
 | 8 | With app lock off, kill and reopen; then enable it and repeat | No prompt while off; custom password screen while on; data intact |
 | 9 | Search a word from an old entry | Found |
+| 10 | Compare headings/body text with the bundled font samples and inspect reader/editor actions in light and dark modes | Chubbo and Supreme render instead of Android fallback fonts; Back is a large unboxed icon; action and formatting buttons have visible boundaries and press states |
 
 Physical acceptance on a Samsung SM-A525F running Android 14 verifies the v1.0.2 document picker, merge, replace, local API refresh, cold-start journal load, editor autosave, process background/resume, and result feedback with a 196-entry backup. Merge preserves all existing entries and reports its kept/imported counts; replace removes a controlled extra entry and restores exactly 196 entries. A controlled editor entry is written through the real UI, survives background and reopen, and is removed after verification without changing the 196-entry journal.
 
-All 9 passing = v1 shipped.
+All 10 passing = patch accepted.
 
 ## Upgrading later (new version exists)
 
