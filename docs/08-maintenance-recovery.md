@@ -6,9 +6,9 @@ This doc exists for Future You, possibly years from now, possibly stressed. Ever
 
 | Component | Lifespan | Why |
 |---|---|---|
-| The APK on an installed phone | 10+ years | Installed apps keep running across OS upgrades; WebView self-updates |
-| Reinstalling on a future Android | Many years | We target a modern SDK; minimum-install requirements move slowly |
-| The `.md` files | Forever | Plain text is the most durable data format in computing |
+| The APK on an installed phone | Likely many years | Installed apps generally survive OS upgrades, but future Android policy and WebView behavior are outside the project's control |
+| Reinstalling on a future Android | Requires periodic verification | The current target SDK is modern; a future Android release may require a rebuild or new installation requirements |
+| The `.md` files | Long-lived and tool-independent | UTF-8 plain text remains readable without LifeNote |
 
 Realistic maintenance schedule: **none**, plus one 10-second habit below.
 
@@ -68,11 +68,12 @@ Prevention: keystore lives in 3 places minimum (PC, cloud drive, USB stick) **st
 3. Choose **Replace this journal** and select the copied zip
 4. Verify several entries, then export a fresh backup from the new phone
 
-## What this system will NEVER need
+## What routine LifeNote use does not require
 
 - Subscription renewals, account recovery emails
-- Certificate renewals, domains, routers, or peer addresses
-- Server patches, dependency security updates
-- Play Store compliance migrations
+- Domains, router configuration, or remote-server administration
+- Play Store publishing or a hosted backend
+
+Future Android installation policy, SDK tooling, or WebView changes can still require a maintenance build. The Markdown backup remains the recovery path even if the original APK eventually stops installing.
 
 The cost curve of LifeNote is: some effort now, then flat zero. Every design choice above was made to keep that line flat.

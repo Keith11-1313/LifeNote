@@ -23,7 +23,7 @@ LifeNote/
 │   └── src/main/
 │       ├── AndroidManifest.xml      ← app label/icon, INTERNET permission, adjustResize
 │       ├── assets/
-│       │   ├── index.html           ← ENTIRE UI: 5 views + CSS + JS + mock-mode adapter
+│       │   ├── index.html           ← ENTIRE UI: 6 views + CSS + JS + mock-mode adapter
 │       │   └── fonts/               ← bundled Chubbo Bold + Supreme Regular WOFF2 only
 │       └── java/com/lifenote/
 │           ├── MainActivity.kt      ← WebView host, app-lock/archive bridges, server lifecycle
@@ -33,9 +33,7 @@ LifeNote/
 │           ├── ArchiveManager.kt    ← zip export + staged merge/replace import
 │           └── Settings.kt          ← local API token, internal device label, optional lock password
 │
-├── release/
-│   ├── LifeNote-v1.0.0*.apk         ← legacy tracked first-release artifacts
-│   └── LifeNote-v<version>[-debug].apk ← generated, gitignored local builds; signed releases publish on GitHub
+├── release/                         ← generated, gitignored local APK/backup staging
 │
 └── export/                          ← example export zip for format reference
 ```
@@ -89,7 +87,7 @@ index.html ──fetch()──► 127.0.0.1:8420   (own app's server only)
 | `package.json`, `node_modules`, bundlers | Vanilla JS requires no build chain; a bundler would be the first dependency to rot |
 | Third-party libraries in `app/build.gradle.kts` | Every library is a maintenance liability with someone else's roadmap |
 | CI/CD pipelines | Local builds only; there is no team, no remote, no need |
-| Automated test suites | v1 relies on the 9-point checklist in [doc 07](07-build-deploy.md); the compact Kotlin layer is cheaper to verify manually than to burden with a test framework |
+| Automated test suites | v1 relies on the 10-point checklist in [doc 07](07-build-deploy.md); the compact Kotlin layer is cheaper to verify manually than to burden with a test framework |
 
 ## Conventions
 

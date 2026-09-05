@@ -6,11 +6,11 @@ How development actually happens on this project: the loop, the tooling, the rul
 
 ```
 edit index.html ──► refresh PC browser (mock mode)      ← seconds, no build
-edit Kotlin     ──► gradlew assembleDebug ──► emulator   ← ~1 min
-ship            ──► gradlew assembleRelease ──► release/ ──► phone
+edit Kotlin     ──► gradlew assembleDebug + lint         ← compile/static check
+integrate/ship  ──► signed release APK ──► Android device
 ```
 
-The two-tier setup exists because UI iteration must not pay the Android build tax.
+The two-tier setup keeps UI iteration fast while reserving storage, document-picker, signing, and upgrade checks for a physical Android device.
 
 ### Tier 1 — Browser-only UI work
 
@@ -25,21 +25,23 @@ python -m http.server 8080 -Directory app\src\main\assets
 What this tier validates: layout, all six views, autosave/history behavior, calendar logic, Markdown rendering, interaction flows.
 What it cannot validate: storage, real networking, APK behavior.
 
-### Tier 2 — Emulator / device integration
+### Tier 2 — Physical Android integration
 
 ```powershell
-# create a device once (SDK avdmanager), then:
-emulator -avd LifeNoteTest &
+# compile and lint first
+.\gradlew.bat assembleDebug lint
 
-# install + launch debug build
-.\gradlew installDebug
+# confirm USB debugging, then install the signed release built with doc 07
+adb devices -l
+adb install -r release\LifeNote-v<version>.apk
 adb shell am start -n com.lifenote/.MainActivity
 
 # stream logs while testing
-adb logcat --pid=$(adb shell pidof com.lifenote)
+$lifeNotePid = (adb shell pidof com.lifenote).Trim()
+adb logcat --pid=$lifeNotePid
 ```
 
-Physical phone: enable Developer Options → USB debugging → `adb install -r app\build\outputs\apk\debug\app-debug.apk`.
+Enable Developer Options and USB debugging once. Before updating an installation that contains real journal data, export and validate a backup. A debug APK has a different signing certificate and is only for a disposable clean installation; never uninstall an active release merely to install a debug build.
 
 ## Engineering rules (binding)
 
@@ -56,7 +58,7 @@ Physical phone: enable Developer Options → USB debugging → `adb install -r a
 ## Definition of done (per feature)
 
 1. Works in browser mock mode
-2. Works on emulator against real files
+2. Works on a physical Android device against real files
 3. Passes relevant rows of the [doc 07 checklist](07-build-deploy.md)
 4. Docs updated **in the same change** if behavior or contracts moved
 5. APK rebuilt into `release/` with bumped version
@@ -65,25 +67,25 @@ Physical phone: enable Developer Options → USB debugging → `adb install -r a
 
 ```powershell
 # 1. bump versionName/versionCode in app/build.gradle.kts
-# 2. build signed release
-$env:LIFENOTE_KEYSTORE_PASSWORD = '<release-key-password>'
-.\gradlew assembleRelease
-# 3. archive with versioned name
-Copy-Item app\build\outputs\apk\release\app-release.apk release\LifeNote-v<version>.apk
-# 4. copy to the phone, tap-to-install (doc 07 step 4)
-# 5. publish GitHub Release — the permanent APK shelf, downloadable from any phone browser:
+# 2. follow doc 07 Step 2 to enter the password securely, build, and copy the signed APK
+# 3. export a backup, update the physical Android installation, and pass doc 07's checklist
+# 4. commit and push source + docs so the release tag points at the tested code
+git status --short
+git add <reviewed-source-and-doc-paths>
+git commit -m "release: publish LifeNote v<version>"
+git push origin main
+# 5. verify/refresh GitHub authentication, then publish the APK as a GitHub Release
+gh auth status
 gh release create v<version> release\LifeNote-v<version>.apk `
   --title "LifeNote v<version>" `
   --notes "Changes in this version."
-# 6. push source + docs
-git push origin main
 ```
 
-GitHub Releases are the canonical off-device APK shelf: every shipped build remains downloadable at `github.com/Keith11-1313/LifeNote/releases` indefinitely. The local `release/` folder is generated staging; APKs and private journal zips there are gitignored. Keystore files are never attached to releases and never committed (`*.jks` is gitignored) — doc 08's manual backup policy still governs them.
+GitHub Releases are the project's distribution shelf while the repository and account remain available. Keep an independent copy of released APKs and the signing keystore. The local `release/` folder is generated staging; APKs and private journal zips there are gitignored. Keystore files are never attached to releases and never committed (`*.jks` is gitignored) — doc 08's manual backup policy still governs them.
 
 Release builds run R8 optimization and resource shrinking. Set `LIFENOTE_KEYSTORE_PASSWORD` in the current PowerShell session; Gradle signs only when both that value and `app\keystore.jks` exist. Never place the password in source, docs, Gradle properties, or shell history.
 
-Rollback policy: previous APKs stay on GitHub Releases; local copies may also remain in the gitignored `release/` folder. Reinstalling an older APK over a newer one is supported (same keystore); data files are forward-compatible by parser contract.
+Rollback policy: Android normally blocks installing an older version over a newer one. Export first; if rollback is essential, uninstall the newer app, install the older signed APK, then use Replace with the export. This deletes app-private data during uninstall, so the verified export is mandatory.
 
 ## Environment facts (this PC)
 

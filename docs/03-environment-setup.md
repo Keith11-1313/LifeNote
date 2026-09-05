@@ -2,16 +2,16 @@
 
 One-time setup, then permanent capability: the PC compiles APKs offline from here on. Gradle caches everything on first build; no internet is required afterward.
 
-> **Android Studio is not used in this project.** It is a 3+ GB IDE for visual tooling we don't need. Only the command-line ingredients are installed.
+> **Android Studio and an emulator are not required for this project.** The established workflow uses the command-line SDK, browser mock mode, and a physical Android device, avoiding a large IDE and virtual-device image.
 
-## Current status on this PC (verified 2026-08-23)
+## Current status on this PC (verified 2026-09-05)
 
 | Component | State |
 |---|---|
 | JDK 17 (Temurin 17.0.12) | ✅ present — `JAVA_HOME` points at `C:\Program Files\Eclipse Adoptium\jdk-17.0.12.7-hotspot` |
 | Android SDK cmdline-tools | ✅ installed at `%LOCALAPPDATA%\Android\Sdk\cmdline-tools\latest` |
-| SDK platform + build-tools | ✅ installed — platform-tools 37, platforms;android-35, build-tools;35.0.0 |
-| GitHub CLI 2.98.0 (`gh`) | ⚠️ installed; authentication must be refreshed before the v1 push/release; remote `origin` = `Keith11-1313/LifeNote`, branch `main` |
+| SDK platform + build-tools | ✅ installed — platform-tools 37.0.1, platforms;android-35, build-tools;35.0.0 |
+| GitHub CLI 2.98.0 (`gh`) | ⚠️ installed; the saved token is invalid and `gh auth login` must run before the next push or release |
 
 **Environment is complete — all steps below are reference for rebuild-on-a-new-machine scenarios only.**
 
@@ -31,7 +31,7 @@ Verification:
 
 ```powershell
 gh auth status                    # ✓ Logged in to github.com
-git push origin main              # must succeed without password prompts
+git ls-remote origin              # read-only repository access check
 ```
 
 ## What gets installed
@@ -44,7 +44,7 @@ git push origin main              # must succeed without password prompts
 | **GitHub CLI (`gh`)** | Terminal access to GitHub: auth, releases (APK hosting), repo management | ~50 MB |
 | **Gradle** | Build automation — downloaded *automatically* by the wrapper on first build | ~130 MB |
 
-Total disk: ~1 GB in `C:\Users\Jerald\` — nothing installed system-wide, fully removable.
+The command-line Android toolchain uses roughly 1 GB plus Gradle caches. The JDK may be installed system-wide; no Android Studio installation or emulator image is required.
 
 ## Step 1 — Install JDK 17
 
@@ -98,13 +98,13 @@ $sdkmanager = "$env:LOCALAPPDATA\Android\Sdk\cmdline-tools\latest\bin\sdkmanager
 
 ## Step 4 — Tell the tools where the SDK lives
 
-Create `C:\Users\Jerald\\.gradle\gradle.properties`:
+Create `local.properties` in the repository root using the current Windows account name:
 
 ```properties
-sdk.dir=C\:\\Users\\Jerald\\AppData\\Local\\Android\\Sdk
+sdk.dir=C\:\\Users\\<Windows-user>\\AppData\\Local\\Android\\Sdk
 ```
 
-(Also set system env var `ANDROID_HOME` to the same path — some tools look for it.)
+Replace `<Windows-user>` with the local account folder name. `local.properties` is gitignored because this path is machine-specific. Optionally set `ANDROID_HOME` to `%LOCALAPPDATA%\Android\Sdk` for tools that use the environment variable.
 
 ## Step 5 — Verify everything
 
@@ -114,7 +114,7 @@ java -version                                    # 17.x
 adb version                                      # Android Debug Bridge
 ```
 
-All three answering = environment ready.
+All three answering = Android build environment ready. GitHub publishing additionally requires `gh auth status` to report a valid login.
 
 ## Maintenance cost of this setup: zero
 

@@ -29,18 +29,19 @@ One sideloaded APK contains the journal UI and stores every entry as a plain `.m
 | [06 — Storage Format](docs/06-storage-format.md) | Entry file contract, parser rules, Markdown rendering subset |
 | [07 — Build & Deploy](docs/07-build-deploy.md) | Keystore, build, sideload install, backup/restore test checklist |
 | [08 — Maintenance & Recovery](docs/08-maintenance-recovery.md) | Failure playbook, backups, phone migration, lifespan analysis |
-| [09 — Development Guide](docs/09-development-guide.md) | Two-tier dev loop (browser mock → emulator), engineering rules, release process, onboarding path |
+| [09 — Development Guide](docs/09-development-guide.md) | Two-tier dev loop (browser mock → physical Android device), engineering rules, release process, onboarding path |
 
 ## Quick facts
 
 | | |
 |---|---|
-| Version | v1.0.3 development build |
+| Version | v1.0.3 signed local build |
 | Stack | Kotlin (~970 lines) + single-file HTML/CSS/JS UI (~1490 lines) |
 | Dependencies | 0 third-party runtime dependencies |
 | Min Android | 8.0 (API 26) · target API 35 |
 | Local transport | HTTP/1.1 loopback on `127.0.0.1:8420`; never exposed to the LAN |
 | Data format | One UTF-8 Markdown file per entry (internal ≡ export format) |
 | Install method | Sideloaded APK, no Play Store |
-| Published release | [LifeNote v1.0.2](https://github.com/Keith11-1313/LifeNote/releases/tag/v1.0.2) |
+| Signed APK | ~116 KB; verified as an in-place Android update with existing app data preserved |
+| Latest GitHub release | [LifeNote v1.0.2](https://github.com/Keith11-1313/LifeNote/releases/tag/v1.0.2); publish v1.0.3 after the remaining release checklist passes |
 | Recurring cost | Zero, by design |

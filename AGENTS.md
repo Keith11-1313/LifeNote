@@ -11,7 +11,7 @@ On first contact with this repo in a session:
 
 1. Read this file completely.
 2. Read `README.md` → then [docs/01](docs/01-overview.md) → [docs/02](docs/02-architecture.md).
-3. Before touching storage or sync code, additionally read [docs/05](docs/05-sync-protocol.md) and [docs/06](docs/06-storage-format.md).
+3. Before touching storage, backup/import, or local API code, additionally read [docs/05](docs/05-sync-protocol.md) and [docs/06](docs/06-storage-format.md).
 
 Never modify code based on memory of previous sessions. The docs are the single source of truth; re-verify contracts against them.
 
@@ -27,9 +27,9 @@ Never modify code based on memory of previous sessions. The docs are the single 
 | Component responsibility, request flow, security | `02-architecture.md` |
 | Build tooling, SDK versions, environment steps | `03-environment-setup.md`, verified-status tables |
 | New/moved/renamed/deleted files, dependency rules | `04-project-structure.md` |
-| Sync behavior, API routes, merge/conflict rules | `05-sync-protocol.md` |
+| Backup/import behavior, local API routes, merge/conflict rules | `05-sync-protocol.md` |
 | Storage layout, front matter fields, Markdown subset | `06-storage-format.md` |
-| Build/sign/install/pairing procedure, test checklist | `07-build-deploy.md` |
+| Build/sign/install procedure, backup/import validation, test checklist | `07-build-deploy.md` |
 | Backup/recovery implications, lifespan assumptions | `08-maintenance-recovery.md` |
 | Dev workflow, engineering rules, release process | `09-development-guide.md` |
 | Version number | `README.md` quick facts + `app/build.gradle.kts` together |
@@ -43,7 +43,7 @@ These are restated here because assistants violate them most often:
 1. **Zero new third-party runtime dependencies.** No libraries in `app/build.gradle.kts`, no npm, nothing. Hand-roll instead. Exceptions require rewriting doc 01 principles *first* and stating the case to the user.
 2. **No breaking changes to doc 06 storage format.** Unknown front-matter keys are preserved. Malformed files are displayed, never dropped.
 3. **All file writes are atomic** (temp file + rename). No exceptions.
-4. **No background processes, no network calls except to the paired peer**, no telemetry of any kind.
+4. **No background processes, no outbound network calls, no telemetry of any kind.** The in-app HTTP server binds only to loopback.
 5. **Kotlin files stay under ~300 lines**; split when exceeded.
 6. **Comments only where the *why* is non-obvious** — the docs carry rationale, not the code.
 
@@ -51,7 +51,7 @@ These are restated here because assistants violate them most often:
 
 - Work in the existing directory structure; never create parallel or duplicate trees.
 - Prefer editing existing docs over creating new ones; a new numbered doc requires user approval.
-- Keep docs declarative and present tense ("Sync uses LWW", never "will use").
+- Keep docs declarative and present tense ("Merge uses the `updated` timestamp", never "will use").
 - Commands written in docs must be PowerShell-compatible (this dev PC is Windows).
 - **PowerShell text operations on repo files MUST be encoding-explicit:** use `Get-Content -Encoding UTF8` / `[System.IO.File]::ReadAllText` + `WriteAllText` with `UTF8Encoding`. Bare `Get-Content`/`Set-Content` round-trips corrupt non-ASCII characters (mojibake) — this bug shipped once already; never again.
 - Use pinned versions everywhere; never write "latest".
@@ -71,7 +71,7 @@ These are restated here because assistants violate them most often:
 - Creating CI pipelines, test frameworks, or new tooling
 - Committing, pushing, or creating branches unless asked
 - Deleting or renaming documented files/contracts
-- Changing the sync protocol, port, storage format, or API shape
+- Changing the local API/import contract, port, storage format, or API shape
 - Touching `keystore.jks` beyond reading its existence
 
 ## 7. Session hygiene
