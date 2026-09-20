@@ -58,12 +58,11 @@ The command above copies the signed APK into the gitignored local `release/` sta
 
 ```powershell
 .\gradlew.bat assembleDebug
-Copy-Item app\build\outputs\apk\debug\app-debug.apk release\LifeNote-v1.0.4-debug.apk -Force
 ```
 
-The debug APK uses a different certificate from the release APK. Install it only on a disposable test installation; it cannot update an installed release build without uninstalling that build and deleting its app-private journal.
+The debug APK remains at `app\build\outputs\apk\debug\app-debug.apk`; do not copy it into the `release\` staging folder. It uses a different certificate from the release APK. Install it only on a disposable test installation; it cannot update an installed release build without uninstalling that build and deleting its app-private journal.
 
-The signed v1.0.4 release candidate is 119,320 bytes with SHA-256 `C5D966AFA3423837C2B9E8F3E9F2B7387123DEDB3F9D56B895123A1A3DE00524`. Its signing certificate matches the installed v1.0.3 release. The latest published GitHub release remains [v1.0.3](https://github.com/Keith11-1313/LifeNote/releases/tag/v1.0.3) until the v1.0.4 checklist below passes.
+The published [v1.0.4](https://github.com/Keith11-1313/LifeNote/releases/tag/v1.0.4) APK is 119,320 bytes with SHA-256 `C5D966AFA3423837C2B9E8F3E9F2B7387123DEDB3F9D56B895123A1A3DE00524`. Its signing certificate matches the installed v1.0.3 release.
 
 ## Step 3 — Get the APK onto the Android device
 
@@ -77,7 +76,7 @@ Any of these works — the APK is just a file:
 
 ## Step 4 — Install on the Android device
 
-1. Open the **Files** app → Downloads → tap `LifeNote-v1.0.4.apk` (or the provided `LifeNote-v1.0.4-debug.apk` test build)
+1. Open the **Files** app → Downloads → tap `LifeNote-v1.0.4.apk`
 2. Android: *"For your security, this phone is not allowed to install unknown apps"* → tap **Settings** → allow installs **from that Files app only** (scoped permission — safe, standard sideload flow)
 3. Back → **Install** → done
 4. For updates, Android retains the journal only when the application ID and release signing certificate match the installed build
@@ -106,7 +105,7 @@ Updating from v1.0.0 clears its legacy mandatory PIN once. App lock remains off 
 | 9 | Search a word from an old entry | Found |
 | 10 | Compare headings/body text with the bundled font samples and inspect timeline, calendar, reader, and editor actions in light and dark modes at compact and wide widths | Chubbo and Supreme render instead of Android fallback fonts; timeline previews remain readable without stretching edge-to-edge; calendar days, Back, action, formatting, and navigation controls have visible focus/press states and usable touch targets |
 
-Focused physical Android verification on 2026-09-04 confirms that the signed v1.0.3 APK matches the installed release certificate, updates v1.0.2 in place, preserves existing journal data, launches without an immediate storage or crash error, serves the bundled fonts, and renders titleless cards without duplicating their first body line. A fresh export was copied off-device and structurally validated before installation. Repeat the checklist for the signed v1.0.4 APK before publishing it on GitHub.
+Focused physical Android verification on 2026-09-04 confirms that the signed v1.0.3 APK matches the installed release certificate, updates v1.0.2 in place, preserves existing journal data, launches without an immediate storage or crash error, serves the bundled fonts, and renders titleless cards without duplicating their first body line. A fresh export was copied off-device and structurally validated before installation.
 
 Focused physical Android verification on 2026-09-20 confirms that the signed v1.0.4 APK has package `com.lifenote`, version code 5, the same signing certificate as the installed release, and launches successfully after installation. The UI, editor autosave, reader, search, calendar, dark theme, and large-text checks passed on the same device using an isolated build. Backup/import, History restore, and app-lock checks remain manual release gates.
 
