@@ -51,9 +51,9 @@ Owns all pixels and interactions. Contains six views:
 
 | View | Function | Requirement IDs |
 |---|---|---|
-| Timeline | Date-grouped entry list, search bar on top; untitled entries show one body excerpt without a duplicated fallback heading | F4, F6 |
+| Timeline | Date-context header; date-grouped entry list with compact entry times and two-line previews, search bar on top, keyboard-openable cards, direct first-entry empty-state action, and a centered large-screen width limit; untitled entries show one body excerpt without a duplicated fallback heading | F4, F6, F7 |
 | Editor | Notes-app style title + WYSIWYG body; autosaves after 900 ms idle and flushes on Done/Back | F1–F3, F7–F9 |
-| Calendar | Month grid, entry-day markers, day drill-down | F5 |
+| Calendar | Adaptive-width month grid with labeled day controls, entry-day markers, and day drill-down | F5, F7 |
 | Reader | Rendered Markdown view of one entry with a content-first header and distinct actions | F7 |
 | History | Newest 20 prior versions with read-only review before explicit restore | F9 |
 | Settings | Appearance, optional app-lock controls, export, merge import, replace import, version | P1, D2–D4 |

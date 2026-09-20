@@ -104,7 +104,7 @@ Updating from v1.0.0 clears its legacy mandatory PIN once. App lock remains off 
 | 7 | Select a malformed or unrelated zip | Import fails without changing current entries |
 | 8 | With app lock off, kill and reopen; then enable it and repeat | No prompt while off; custom password screen while on; data intact |
 | 9 | Search a word from an old entry | Found |
-| 10 | Compare headings/body text with the bundled font samples and inspect reader/editor actions in light and dark modes | Chubbo and Supreme render instead of Android fallback fonts; Back is a large unboxed icon; action and formatting buttons have visible boundaries and press states |
+| 10 | Compare headings/body text with the bundled font samples and inspect timeline, calendar, reader, and editor actions in light and dark modes at compact and wide widths | Chubbo and Supreme render instead of Android fallback fonts; timeline previews remain readable without stretching edge-to-edge; calendar days, Back, action, formatting, and navigation controls have visible focus/press states and usable touch targets |
 
 Focused physical Android verification on 2026-09-04 confirms that the signed v1.0.3 APK matches the installed release certificate, updates v1.0.2 in place, preserves existing journal data, launches without an immediate storage or crash error, serves the bundled fonts, and renders titleless cards without duplicating their first body line. A fresh export was copied off-device and structurally validated before installation. The remaining checklist interactions still require a final manual pass before v1.0.3 is published on GitHub.
 

@@ -10,7 +10,7 @@ One sideloaded APK contains the journal UI and stores every entry as a plain `.m
 
 | Area | Capabilities |
 |---|---|
-| Journaling | Debounced autosave · revision preview and restore · notes-app editor · non-duplicating untitled cards · bundled typography · timeline · calendar · instant search · Markdown storage |
+| Journaling | Debounced autosave · revision preview and restore · notes-app editor · guided first-entry empty state · editorial two-line timeline cards · bundled typography · adaptive-width timeline and calendar · instant search · Markdown storage |
 | Backup & restore | Export readable Markdown zip · merge backup into the current journal · replace the current journal from a backup |
 | Data safety | Human-readable `.md` storage · bounded revision history · staged import validation · atomic replacement · explicit monthly backup workflow |
 | Privacy | Optional in-app password lock · zero outbound network communication · local files remain inside Android storage until explicitly exported |
