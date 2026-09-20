@@ -35,7 +35,7 @@ One sideloaded APK contains the journal UI and stores every entry as a plain `.m
 
 | | |
 |---|---|
-| Version | v1.0.3 signed local build |
+| Version | v1.0.4 release candidate |
 | Stack | Kotlin (~970 lines) + single-file HTML/CSS/JS UI (~1490 lines) |
 | Dependencies | 0 third-party runtime dependencies |
 | Min Android | 8.0 (API 26) · target API 35 |
@@ -43,5 +43,5 @@ One sideloaded APK contains the journal UI and stores every entry as a plain `.m
 | Data format | One UTF-8 Markdown file per entry (internal ≡ export format) |
 | Install method | Sideloaded APK, no Play Store |
 | Signed APK | ~116 KB; verified as an in-place Android update with existing app data preserved |
-| Latest GitHub release | [LifeNote v1.0.2](https://github.com/Keith11-1313/LifeNote/releases/tag/v1.0.2); publish v1.0.3 after the remaining release checklist passes |
+| Latest GitHub release | [LifeNote v1.0.3](https://github.com/Keith11-1313/LifeNote/releases/tag/v1.0.3); publish v1.0.4 after the release checklist passes |
 | Recurring cost | Zero, by design |

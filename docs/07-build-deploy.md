@@ -39,7 +39,7 @@ try {
     $env:LIFENOTE_KEYSTORE_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPointer)
     .\gradlew.bat assembleRelease
     if ($LASTEXITCODE -ne 0) { throw "Release build failed." }
-    Copy-Item app\build\outputs\apk\release\app-release.apk release\LifeNote-v1.0.3.apk -Force
+    Copy-Item app\build\outputs\apk\release\app-release.apk release\LifeNote-v1.0.4.apk -Force
 } finally {
     Remove-Item Env:LIFENOTE_KEYSTORE_PASSWORD -ErrorAction SilentlyContinue
     [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($passwordPointer)
@@ -58,12 +58,12 @@ The command above copies the signed APK into the gitignored local `release/` sta
 
 ```powershell
 .\gradlew.bat assembleDebug
-Copy-Item app\build\outputs\apk\debug\app-debug.apk release\LifeNote-v1.0.3-debug.apk -Force
+Copy-Item app\build\outputs\apk\debug\app-debug.apk release\LifeNote-v1.0.4-debug.apk -Force
 ```
 
 The debug APK uses a different certificate from the release APK. Install it only on a disposable test installation; it cannot update an installed release build without uninstalling that build and deleting its app-private journal.
 
-The signed local v1.0.3 APK is 118,436 bytes with SHA-256 `29A4273B222C42C153529F5151DF4EBECC99FFE2BF3756C266F5821774E7EBF6`. The latest documented GitHub release remains [v1.0.2](https://github.com/Keith11-1313/LifeNote/releases/tag/v1.0.2) until v1.0.3 completes the checklist below and is published.
+The signed v1.0.4 release candidate is 119,320 bytes with SHA-256 `C5D966AFA3423837C2B9E8F3E9F2B7387123DEDB3F9D56B895123A1A3DE00524`. Its signing certificate matches the installed v1.0.3 release. The latest published GitHub release remains [v1.0.3](https://github.com/Keith11-1313/LifeNote/releases/tag/v1.0.3) until the v1.0.4 checklist below passes.
 
 ## Step 3 — Get the APK onto the Android device
 
@@ -71,13 +71,13 @@ Any of these works — the APK is just a file:
 
 | Method | How |
 |---|---|
-| USB debugging | `adb install -r release\LifeNote-v1.0.3.apk` performs an in-place update when the signing certificate matches |
+| USB debugging | `adb install -r release\LifeNote-v1.0.4.apk` performs an in-place update when the signing certificate matches |
 | USB file transfer | Copy the APK to the phone's Downloads folder, then open it there |
 | Nearby Share or Bluetooth | Transfer the ~116 KB APK, then open it on the phone |
 
 ## Step 4 — Install on the Android device
 
-1. Open the **Files** app → Downloads → tap `LifeNote-v1.0.3.apk` (or the provided `LifeNote-v1.0.3-debug.apk` test build)
+1. Open the **Files** app → Downloads → tap `LifeNote-v1.0.4.apk` (or the provided `LifeNote-v1.0.4-debug.apk` test build)
 2. Android: *"For your security, this phone is not allowed to install unknown apps"* → tap **Settings** → allow installs **from that Files app only** (scoped permission — safe, standard sideload flow)
 3. Back → **Install** → done
 4. For updates, Android retains the journal only when the application ID and release signing certificate match the installed build
@@ -106,7 +106,9 @@ Updating from v1.0.0 clears its legacy mandatory PIN once. App lock remains off 
 | 9 | Search a word from an old entry | Found |
 | 10 | Compare headings/body text with the bundled font samples and inspect timeline, calendar, reader, and editor actions in light and dark modes at compact and wide widths | Chubbo and Supreme render instead of Android fallback fonts; timeline previews remain readable without stretching edge-to-edge; calendar days, Back, action, formatting, and navigation controls have visible focus/press states and usable touch targets |
 
-Focused physical Android verification on 2026-09-04 confirms that the signed v1.0.3 APK matches the installed release certificate, updates v1.0.2 in place, preserves existing journal data, launches without an immediate storage or crash error, serves the bundled fonts, and renders titleless cards without duplicating their first body line. A fresh export was copied off-device and structurally validated before installation. The remaining checklist interactions still require a final manual pass before v1.0.3 is published on GitHub.
+Focused physical Android verification on 2026-09-04 confirms that the signed v1.0.3 APK matches the installed release certificate, updates v1.0.2 in place, preserves existing journal data, launches without an immediate storage or crash error, serves the bundled fonts, and renders titleless cards without duplicating their first body line. A fresh export was copied off-device and structurally validated before installation. Repeat the checklist for the signed v1.0.4 APK before publishing it on GitHub.
+
+Focused physical Android verification on 2026-09-20 confirms that the signed v1.0.4 APK has package `com.lifenote`, version code 5, the same signing certificate as the installed release, and launches successfully after installation. The UI, editor autosave, reader, search, calendar, dark theme, and large-text checks passed on the same device using an isolated build. Backup/import, History restore, and app-lock checks remain manual release gates.
 
 All 10 passing = patch accepted.
 
